@@ -58,7 +58,7 @@ int main(){
         perror("bind");
         close(sockfd);
         exit(EXIT_FAILURE);
-    }//dindet Socket an IP adresse(liefert fehler wenn Port schon belegt)
+    }//bindet Socket an IP adresse(liefert fehler wenn Port schon belegt)
     
     // listen for conection (man listen)
     if (listen(sockfd, BACKLOG) == -1) {
@@ -84,7 +84,7 @@ int main(){
         }
         
         printf("Verbindung von %s\n", inet_ntoa(client_addr.sin_addr));
-        //Schleife für wiederholte Kommunikation mit dem Client
+        //Schleife für wiederholte Kommunikation mit einem Client
         while (1) {
             //Daten empfangen (man recv)
             num_bytes = recv(new_fd, buf, BUF_SIZE - 1, 0);//empfängt die nachicht vom socket(client)
@@ -121,6 +121,7 @@ int main(){
         }
         // Verbindung vom client schließen
         close(new_fd);
+        printf("Verbindung geschlossen.\n");
     }
 
     close(sockfd);
