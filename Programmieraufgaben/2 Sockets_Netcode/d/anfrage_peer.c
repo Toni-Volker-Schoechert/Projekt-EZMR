@@ -24,21 +24,15 @@ anfrage_peer.c:
   connect <ip> <port>    - baut Verbindung zu Peer auf (erzeugt neuen connection-thread)
   peers                  - listet aktuelle Verbindungen (eingehend + ausgehend)
   send <idx> <COMMAND>   - sendet COMMAND an Peer Nummer idx (1-basiert)
-  broadcast <COMMAND>    - sendet COMMAND an alle Peers
   local_list             - zeigt lokale Nachrichtenliste
   help                   - Hilfetext
   exit                   - beendet diesen Peer (schließt alle Verbindungen)
  
  * Wichtige Hinweise:
- * - Diese Implementierung ist demonstrativ: für einfache P2P-Effekte.
- * - Die Nachrichtenliste ist mit einem mutex geschützt (pthread_mutex).
- * - Jeder Peer-Connection hat einen eigenen Handler-Thread.
- *
- * Relevante Man-Pages:
- *   man 2 socket, bind, listen, accept, connect, recv, send, close
- *   man 3 inet_pton, inet_ntop, htons
- *   man 3 pthread_create, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_unlock
- *   Beej's Guide: https://beej.us/guide/bgnet/ 
+  - Diese Implementierung ist demonstrativ: für einfache P2P-Effekte.
+  - Die Nachrichtenliste ist mit einem mutex geschützt (pthread_mutex).
+  - Jeder Peer-Connection hat einen eigenen Handler-Thread.
+ 
 */
 
 #include <stdio.h> //Für Ein-/Ausgabe-Funktionen (z.B. printf, perror)
@@ -467,7 +461,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Peer gestartet. Lokaler Listener auf Port %d\n", port);
-    printf("Befehle: connect <ip> <port> | peers | send <idx> <COMMAND> | broadcast <COMMAND> | local_list | help | exit\n");
+    printf("Befehle: connect <ip> <port> | peers | send <idx> <COMMAND> | local_list | help | exit\n");
 
     // Main thread: CLI für connect/send
     char line[BUF_SIZE];
@@ -485,12 +479,11 @@ int main(int argc, char *argv[]) {
             printf("connect <ip> <port>    - Verbindung zu Peer herstellen\n");
             printf("peers                  - Liste aktiver Verbindungen\n");
             printf("send <idx> <COMMAND>   - COMMAND (z.B. ADD Hi) an Peer idx senden\n");
-            printf("broadcast <COMMAND>    - COMMAND an alle Peers senden\n");
             printf("<COMMAND>: \n");
             printf("\t ADD <Text>       - fügt <Text> als neue Nachricht hinzu\n");
             printf("\t LIST             - gibt alle Nachrichten (index: text) zurück\n");
-            printf("\t DELETE <id>      - löscht Nachricht mit Nummer <id> (1-basiert)\n");
-            printf("\t MOVE <from> <to> - verschiebt Nachricht von Index from nach to (1-basiert)\n");
+            printf("\t DELETE <id>      - löscht Nachricht mit Nummer <id> \n");
+            printf("\t MOVE <from> <to> - verschiebt Nachricht von Index from nach to\n");
             printf("\t QUIT             - beendet die Verbindung\n");
             printf("local_list             - zeige lokale Nachrichtenliste\n");
             printf("exit                   - beende Peer (schließt alle Verbindungen)\n");
@@ -574,29 +567,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        else if (strcmp(cmd, "broadcast") == 0) { //Nachicht/Befehl an alle PEER Senden
-            char *rest = strtok(NULL, "");
-            if (!rest) { printf("Usage: broadcast <COMMAND>\n"); continue; }
-            char msg[BUF_SIZE];
-            snprintf(msg, sizeof(msg), "%s\n", rest);
-            pthread_mutex_lock(&peers_mutex);
-            for (int i = 0; i < MAX_PEERS; ++i) {
-                if (peers[i].active) {
-                    if (send_to_peer_fd(peers[i].fd, msg) == -1) {
-                        perror("send broadcast");
-                    } else {
-                        // try to read immediate response (best-effort)
-                        char resp[BUF_SIZE * 2];
-                        ssize_t rn = recv(peers[i].fd, resp, sizeof(resp)-1, MSG_DONTWAIT);
-                        if (rn > 0) {
-                            resp[rn] = '\0';
-                            printf("Antwort von %s:%d -> %s", peers[i].addr, peers[i].port, resp);
-                        }
-                    }
-                }
-            }
-            pthread_mutex_unlock(&peers_mutex);
-        }
         else if (strcmp(cmd, "local_list") == 0) { //Nachichten Liste ausgeben
             char out[BUF_SIZE * 4];
             list_messages(out, sizeof(out));
