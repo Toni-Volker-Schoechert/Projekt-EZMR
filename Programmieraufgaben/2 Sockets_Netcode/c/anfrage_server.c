@@ -10,19 +10,12 @@
     MOVE <from> <to> - verschiebt Nachricht von Index from nach to (1-basiert)
     QUIT             - beendet die Verbindung
 
-       Temp für mich im beleg
  * Hinweise:
   - Diese Implementierung hält Nachrichten im RAM (keine Persistenz).
   - Zur Einfachheit verarbeitet der Server jeweils einen Client
     komplett, bevor er den nächsten annimmt (sequenziell).
   - Für echte Parallelität müsste msg_list durch ein Mutex geschützt und
     jeder Client in einem Thread oder Prozess bearbeitet werden.
-
- 
- * Relevante Man-Pages / Quellen:
- *   man 2 socket, man 2 bind, man 2 listen, man 2 accept
- *   man 2 recv, man 2 send, man 3 htons, man 3 inet_ntoa
- *   Beej's Guide: https://beej.us/guide/bgnet/
 */
 
 #include <stdio.h> //Für Ein-/Ausgabe-Funktionen (z.B. printf, perror)
@@ -73,7 +66,7 @@ void list_messages(char *out, size_t out_size) {
 
 
 int delete_message(int id) {
-/* delete_message: löscht Nachricht mit 1-basierter id; gibt 0 bei Erfolg, -1 bei Fehler */
+/* delete_message: löscht Nachricht mit id; gibt 0 bei Erfolg, -1 bei Fehler */
     if (id < 1 || id > msg_count) return -1;
     int idx = id - 1;
     // Elemente nach idx nach links schieben
@@ -86,7 +79,7 @@ int delete_message(int id) {
 
 
 int move_message(int from, int to) {
-/* move_message: verschiebt Nachricht von Position 'from' nach 'to' (1-basiert) in der Liste */
+/* move_message: verschiebt Nachricht von Position 'from' nach 'to' in der Liste */
     if (from < 1 || from > msg_count) return -1;
     if (to < 1) to = 1;
     if (to > msg_count) to = msg_count;
