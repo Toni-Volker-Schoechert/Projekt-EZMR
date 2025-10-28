@@ -1,4 +1,9 @@
-#define _POSIX_C_SOURCE 200809L //aktiviert POSIX-Funktionen (siehe man feature_test_macros)
+/*
+ anfrage_client.c
+ interaktiver Client: verbindet sich mit Server und sendet Nachichten.
+ Zeigt Serverantwort an.
+ Verbindung mit server bleibt bist programm beendet (quit Eingeben)
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,9 +72,10 @@ Flags=0 bedeutet Standardverhalten.
 
 Wichtig: Partial sends
 
-TCP ist streambasiert; send() kann weniger Bytes übertragen als verlangt. Robuster Code überprüft bytes_sent und sendet in einer Schleife weiter, bis alles gesendet ist.
+TCP ist streambasiert; send() kann weniger Bytes übertragen als verlangt. Robuster Code überprüft bytes_sent
+und sendet in einer Schleife weiter, bis alles gesendet ist.
 
-Für kurze Nachrichten < 1 KB ist send() oft vollständig, aber man darf das nicht voraussetzen.*/
+Für kurze Nachrichten < 1 KB ist send() oft vollständig, aber nicht immer.*/
     if (bytes_sent == -1) {
         perror("send");
         close(sockfd);
@@ -82,17 +88,11 @@ Für kurze Nachrichten < 1 KB ist send() oft vollständig, aber man darf das nic
     bytes_received = recv(sockfd, buf, BUF_SIZE - 1, 0);
     /*Erklärung
 
-recv() liest maximal BUF_SIZE-1 Bytes und liefert die tatsächliche Anzahl bytes_received.
-
-Wenn bytes_received == 0: der Peer hat die Verbindung ordentlich geschlossen (EOF).
-
-Wenn bytes_received == -1: Fehler (z.B. EINTR, ECONNRESET).
-
-Auch hier gilt: recv() kann weniger Daten liefern als gesendet — bis zum gewünschten Terminator (z.B. \n) ggf. in einer Schleife lesen.
-
-Man
-
-man 2 recv*/
+    recv() liest maximal BUF_SIZE-1 Bytes und liefert die tatsächliche Anzahl bytes_received.
+    Wenn bytes_received == 0: die Verbindung ordentlich geschlossen (EOF).
+    Wenn bytes_received == -1: Fehler (z.B. EINTR, ECONNRESET).
+    Auch hier gilt: recv() kann weniger Daten liefern als gesendet — bis zum gewünschten Terminator (z.B. \n) ggf. in einer Schleife lesen.
+    man 2 recv*/
     if (bytes_received == -1) {
         perror("recv");
     } else {
