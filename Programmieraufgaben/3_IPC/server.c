@@ -1,148 +1,122 @@
-/* server.c */
+
+/* server.c
+ * System V message queue server for Aufgabe a)
+ * Compile: gcc -o server server.c
+ *
+ * Listens for requests on mtype=1; expects message text "<pid>|<COMMAND...>"
+ * Replies to mtype = <pid> with "OK: ..." or "ERR: ..."
+ *
+ * Uses ftok("/tmp", 'S') to create a stable key.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-#include <sys/shm.h>
-#include <sys/sem.h>
+#include <signal.h>
 #include <unistd.h>
 
-#define SHM_KEY_PATH "/tmp"
-#define MSG_KEY_PATH "/tmp"
-#define PROJ_ID  'S'
-#define MAX_DATA 256
-#define MAX_ENTRIES 256
+#define FTOK_PATH "/tmp"
+#define FTOK_PROJ_ID 'S'
+#define MAXTEXT 512
 
-/* Request */
-typedef struct {
+static int msgid = -1;
+
+struct msgbuf {
     long mtype;
-    pid_t client_pid;
-    char cmd;
-    int index;
-    char data[MAX_DATA];
-} ipc_request_t;
+    char mtext[MAXTEXT];
+};
 
-/* Response */
-typedef struct {
-    long mtype;
-    int status;
-    char payload[512];
-} ipc_response_t;
-
-/* Shared list */
-typedef struct {
-    int count;
-    int next_id;
-    char entries[MAX_ENTRIES][MAX_DATA];
-} shared_list_t;
-
-/* semaphore helpers */
-void sem_op(int semid, int op) {
-    struct sembuf s = {0, op, 0};
-    semop(semid, &s, 1);
+void cleanup_and_exit(int sig) {
+    if (msgid != -1) {
+        if (msgctl(msgid, IPC_RMID, NULL) == 0) {
+            printf("\nServer: message queue (id=%d) removed.\n", msgid);
+        } else {
+            perror("Server: msgctl(IPC_RMID)");
+        }
+    }
+    _exit(0);
 }
 
-int main() {
-    key_t msgkey = ftok(MSG_KEY_PATH, PROJ_ID);
-    key_t shmkey = ftok(SHM_KEY_PATH, PROJ_ID+1);
-    key_t semkey = ftok(SHM_KEY_PATH, PROJ_ID+2);
+int main(void) {
+    key_t key;
+    struct msgbuf req, resp;
+    ssize_t rcv_len;
 
-    int msqid = msgget(msgkey, IPC_CREAT | 0666);
-    int shmid = shmget(shmkey, sizeof(shared_list_t), IPC_CREAT | 0666);
-    int semid = semget(semkey, 1, IPC_CREAT | 0666);
+    signal(SIGINT, cleanup_and_exit);
+    signal(SIGTERM, cleanup_and_exit);
 
-    /* init semaphore to 1 if newly created */
-    union semun { int val; } su;
-    su.val = 1;
-    semctl(semid, 0, SETVAL, su);
-
-    shared_list_t *list = (shared_list_t*) shmat(shmid, NULL, 0);
-    /* init shared list if needed */
-    if (list->next_id == 0 && list->count == 0) {
-        list->count = 0;
-        list->next_id = 1;
+    key = ftok(FTOK_PATH, FTOK_PROJ_ID);
+    if (key == -1) {
+        perror("ftok");
+        return 1;
     }
 
-    printf("Server ready. MSQID=%d SHMID=%d SEMID=%d\n", msqid, shmid, semid);
+    /* Create (or get) message queue with read/write for owner */
+    msgid = msgget(key, IPC_CREAT | 0600);
+    if (msgid == -1) {
+        perror("msgget");
+        return 1;
+    }
 
-    ipc_request_t req;
+    printf("Server: message queue created/obtained. msgid=%d, key=0x%x\n", msgid, (unsigned)key);
+    printf("Server: waiting for requests (mtype=1). Stop with Ctrl+C\n");
+
     while (1) {
-        /* receive request (any mtype) */
-        if (msgrcv(msqid, &req, sizeof(req) - sizeof(long), 0, 0) < 0) {
+        memset(&req, 0, sizeof(req));
+        /* Receive requests with mtype=1 */
+        rcv_len = msgrcv(msgid, &req, sizeof(req.mtext), 1, 0);
+        if (rcv_len == -1) {
+            if (errno == EINTR) continue; /* signal interrupted */
             perror("msgrcv");
             break;
         }
 
-        ipc_response_t resp;
-        resp.mtype = req.client_pid;
-        resp.status = 0;
-        memset(resp.payload, 0, sizeof(resp.payload));
+        /* req.mtext expected "<pid>|<COMMAND...>" */
+        pid_t client_pid = 0;
+        char command[MAXTEXT];
+        command[0] = '\0';
 
-        if (req.cmd == 'L') { /* LIST */
-            sem_op(semid, -1); /* P */
-            int n = list->count;
-            /* simple serialization: index:entry\n */
-            char *p = resp.payload;
-            for (int i=0;i<n && strlen(p) < sizeof(resp.payload)-100;i++) {
-                snprintf(p + strlen(p), sizeof(resp.payload) - strlen(p), "%d:%s\n", i, list->entries[i]);
-            }
-            sem_op(semid, +1); /* V */
-        } else if (req.cmd == 'P') { /* PUT */
-            sem_op(semid, -1); /* P */
-            if (list->count < MAX_ENTRIES) {
-                strncpy(list->entries[list->count++], req.data, MAX_DATA-1);
-                resp.status = 0;
-                snprintf(resp.payload, sizeof(resp.payload), "OK index=%d", list->count-1);
-            } else {
-                resp.status = 1;
-                snprintf(resp.payload, sizeof(resp.payload), "LIST FULL");
-            }
-            sem_op(semid, +1);
-        } else if (req.cmd == 'G') { /* GET index */
-            sem_op(semid, -1);
-            if (req.index >=0 && req.index < list->count) {
-                snprintf(resp.payload, sizeof(resp.payload), "%s", list->entries[req.index]);
-            } else {
-                resp.status = 2;
-                snprintf(resp.payload, sizeof(resp.payload), "NO SUCH INDEX");
-            }
-            sem_op(semid, +1);
-        } else if (req.cmd == 'D') { /* DEL index */
-            sem_op(semid, -1);
-            if (req.index >=0 && req.index < list->count) {
-                /* simple: shift down */
-                for (int i=req.index;i<list->count-1;i++) {
-                    strcpy(list->entries[i], list->entries[i+1]);
-                }
-                list->count--;
-                snprintf(resp.payload, sizeof(resp.payload), "DELETED %d", req.index);
-            } else {
-                resp.status = 3;
-                snprintf(resp.payload, sizeof(resp.payload), "NO SUCH INDEX");
-            }
-            sem_op(semid, +1);
-        } else if (req.cmd == 'Q') {
-            snprintf(resp.payload, sizeof(resp.payload), "SERVER QUIT");
-            msgsnd(msqid, &resp, sizeof(resp) - sizeof(long), 0);
-            break;
-        } else {
-            resp.status = -1;
-            snprintf(resp.payload, sizeof(resp.payload), "UNKNOWN CMD %c", req.cmd);
+        if (sscanf(req.mtext, "%d|%511[^\n]", &client_pid, command) < 1) {
+            /* malformed */
+            fprintf(stderr, "Server: malformed request: '%s'\n", req.mtext);
+            continue;
         }
 
-        /* send response to client (mtype = client_pid) */
-        if (msgsnd(msqid, &resp, sizeof(resp) - sizeof(long), 0) < 0) {
-            perror("msgsnd resp");
+        printf("Server: request from pid=%d, command='%s'\n", client_pid, command);
+
+        /* Simple command handling: support "ECHO <text>" and "TIME" and "PING" */
+        resp.mtype = (long) client_pid;
+        if (strncmp(command, "ECHO ", 5) == 0) {
+            snprintf(resp.mtext, sizeof(resp.mtext), "OK: %s", command + 5);
+        } else if (strcmp(command, "TIME") == 0) {
+            char timestr[128];
+            time_t t = time(NULL);
+            struct tm *tm = localtime(&t);
+            if (tm) {
+                strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", tm);
+                snprintf(resp.mtext, sizeof(resp.mtext), "OK: %s", timestr);
+            } else {
+                snprintf(resp.mtext, sizeof(resp.mtext), "ERR: cannot get time");
+            }
+        } else if (strcmp(command, "PING") == 0) {
+            snprintf(resp.mtext, sizeof(resp.mtext), "OK: PONG");
+        } else if (strcmp(command, "") == 0) {
+            snprintf(resp.mtext, sizeof(resp.mtext), "ERR: empty command");
+        } else {
+            snprintf(resp.mtext, sizeof(resp.mtext), "ERR: unknown command '%s'", command);
+        }
+
+        if (msgsnd(msgid, &resp, strlen(resp.mtext)+1, 0) == -1) {
+            perror("msgsnd (response)");
+        } else {
+            printf("Server: replied to pid=%d: %s\n", client_pid, resp.mtext);
         }
     }
 
-    /* cleanup (optional: decide whether to remove IPC objects) */
-    shmdt(list);
-    /* keep IPC objects around so tests with ipcs can find them, or remove them:
-       msgctl(msqid, IPC_RMID, NULL);
-       shmctl(shmid, IPC_RMID, NULL);
-       semctl(semid, 0, IPC_RMID);
-    */
+    cleanup_and_exit(0);
     return 0;
 }
