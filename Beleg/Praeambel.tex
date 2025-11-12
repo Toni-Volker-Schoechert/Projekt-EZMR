@@ -1,0 +1,164 @@
+%----- Schrift und Sprache --------------
+\usepackage[ngerman]{babel}				%%% Sprachpaket für Deutsche Sprache
+
+\usepackage[utf8]{inputenc}				%%% Verwendung von Umlauten und Kodierung dieser, sodass Latex es kompilieren kann
+
+\usepackage[T1]{fontenc} 				%%% Silbentrennung bei Sonderzeichen
+
+\usepackage{textcomp}					%%% Zusätzlihe Symbolzeichen
+
+\usepackage{courier}					%%% Schriftart-Paket
+
+\usepackage{lmodern}					%%% (=Lain Modern) Ausgabe von flüssigem, wenig verpixeltem Text
+\usepackage{mathptmx} %%%times new roman ähnlich
+
+\usepackage{romanbar}					%%% Verwendung römischer Zahlen
+
+\usepackage{siunitx}					%%% Setzt Einheiten und Zahlen korrekt - nützlich besonders bei naturwissenschaftlichen Arbeiten
+
+\usepackage{titlesec}
+
+% Formatierung der Überschriften ohne Punkt nach den Nummern
+\titleformat{\section}[block]{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}[block]{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}[block]{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+
+%------ Seite einrichten ----------------
+
+\usepackage[includehead,includefoot, left=3.0cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}								%%% Gestaltung der Seitenrändern, Kopf- und Fußzeile
+
+\usepackage[onehalfspacing]{setspace} 	%%% Zeilenbstand anpassen, Hier:1,5-fach
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{courier}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,        % Automatischer Zeilenumbruch
+  breakatwhitespace=false % Falls gewünscht, nicht nur an Leerzeichen umbrechen
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\lstset{
+  literate=
+    {ä}{{\"a}}1
+    {ö}{{\"o}}1
+    {ü}{{\"u}}1
+    {Ä}{{\"A}}1
+    {Ö}{{\"O}}1
+    {Ü}{{\"U}}1
+    {ß}{{\ss}}1
+}
+
+
+\usepackage{scrextend}					%%% Erweitert die Möglichkeiten von bestimmten Dokumentklassen
+
+\setlength{\parindent}{0pt}             %%% Nach Zeilenumbruch wird die 1. Zeile im neuen Abschnitt nicht eingerückt
+
+%----- Mathemaische Formeln ------------
+\usepackage{amsmath} 					%%% Erweitert den möglichen Formelsatz
+\usepackage{amssymb}					%%% Fügt weiter mathematische Symbole und Pfeile ein
+
+%----- Tabellen ------------------------
+
+\usepackage{booktabs}					%%% Tabellen formatieren - horizotale Linien
+
+\usepackage{multirow}					%%% Tabellen foratieren - mehrzeiliger Text in einer Zelle
+
+\usepackage{colortbl}					%%% Um Zellen in Tabellen einzufärben
+\usepackage{xcolor} 					%%% Bindet ein Farb-Paket ein 
+
+%%% Vergrößerung des Platzes in Tabellen, besonders nach \hline notwenig
+\newcommand\T{\rule{0pt}{2.6ex}}       	% oben
+\newcommand\B{\rule[-1.2ex]{0pt}{0pt}} 	% unten  
+
+\usepackage{subfigure}					%%% Zur beschriftung mehrerer Bilder mit dem gleichen Titel
+
+\usepackage{float}						%%% Biler und Tabellen werden horizontal umflossen
+
+\usepackage[export]{adjustbox}			%%% Ausrichtung von Figuren links, rechts, zentriert, innen und außen
+
+%----- Zitieren und Referenzen -----------------
+
+\usepackage[round]{natbib}				%%% Zitationstil festlegen (Hier: Autor, Jahr)
+
+\usepackage[german=quotes]{csquotes} 	%%% korrektes Anzeigen von Zitaten
+
+\usepackage{makeidx}
+\makeindex
+%----- Hyperlinks -----------------------------
+\usepackage{hyperref}					%%% Einbinden von Links und Verweisen im Dokument
+\hypersetup{colorlinks=true} 			%%% Ermöglicht das einfärben von Links
+\hypersetup{urlcolor=blue}				%%% URL werden blau angezeigt
+\hypersetup{citecolor=black}			%%% Zitate werden schwarz angezeigt
+\hypersetup{linkcolor=black}			%%% Verweise werden schwarz angezeigt
+
+%----- Importieren -----
+
+\usepackage{graphicx}					%%% Einbinden von Graiken und Bildern
+
+\usepackage{wrapfig}					%%% um Grafiken und Bilder textumflossen einzubinden - muss als letztes Paket eingebunden werden, da es zum Teil auf andere Pakete zugreift
+\usepackage{pdfpages}					%%% PDF können importiert werden
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Alles, was jetzt folgt definiert Kopf- und Fußzeilen neu und bindet so das HTWK-Design ein.
+%
+%\clearscrheadfoot					% Löscht alle Kopf- und Fußzeilen
+%\setfootwidth{\textwidth}			% Definiert die Breite von Kopf und Fußzeile
+%\ohead{\hspace{-6cm} \raisebox{6cm}{\includegraphics[width=10cm]{GELB} }}
+%									%  Fügt das gelbe Rechteck im äußeren Bereich der Fußzeile ein
+%\ihead{\raisebox{10cm}{\headmark}}	% Fügt im inneren Bereich klein die Kapitelüberschriften ein
+%\ofoot{\raisebox{\baselineskip}{\large {\textbf{\pagemark}}}}%[24mm][12mm]
+%									% Setzt unten, außen die Seitenzahl
+
+%Programmablaufplan
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{shapes}
+\usetikzlibrary{positioning}
+\usetikzlibrary{circuits.ee.IEC}
+
+\usepackage{adjustbox} %besseres drehen der bilder
+
+\usepackage{pdfpages}%%pdf einfügen
+
+%%%Matlab code
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{%
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{mymauve},
+  breaklines=true,
+  showstringspaces=false,
+  frame=single
+}
+
+% Pakete für Tabellen und Listings
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{multirow}
+\usepackage{listings}
+
+
+% Definitionen für Tabellen
+\newcolumntype{x}[1]{!{\centering\arraybackslash\vrule width #1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+\renewcommand*{\arraystretch}{1.2}
+
+% Einstellungen für Listings
+\lstset{
+	frame=single,
+	language=C,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	numbers=left,
+}
+
+

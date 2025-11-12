@@ -1,0 +1,40 @@
+\documentclass[a4paper, oneside]{scrbook}
+\include{Praeambel}
+
+\title{Beleg}
+\author{Toni Volker Schoechert, Alexander Gründling}
+\date{\today}
+
+\begin{document}	% Das Dokument beginnt
+% ACHTUNG: Dieses Dokument(.master) muss unter "Optionen/Aktuelle Datei zur 'Masterdatei' erklären" als Master eingestellt sein, ansonsten werden die Kapitel nicht mitkompiliert
+%%%%%%%%%%%%% VOREINSTELLUNGEN UND VERZEICHNISSE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{recommand}					 	% Fügt Datei ein, in der all Umdefinitionen gesammelt sind
+\include{Titelseite}					% Erstellt eine Titelseite 
+\pagenumbering{Roman}					% Römische Seitenzahlen	
+\tableofcontents 						% Erstellt ein Inhaltsverzeichnis 
+\addcontentsline{toc}{chapter}{Inhaltsverzeichnis}
+\listoffigures							% Erstellt TAbbildungsverzeichnis
+\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}	% Fügt den Titel ins Inhaltsverzeichnis 
+\clearpage
+%%%%%%%%%%%%% EINLEITUNG, HAUPTTEIL, FAZIT%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{arabic}\setcounter{page}{1}	% Zurückstellen auf arabische Seitenzahlen, Start bei 1
+\include{Abschnitte/Einleitung}
+\include{Abschnitte/Programieraufgaben}
+\include{Abschnitte/Praktikum}
+%\include{Abschnitte/}
+
+
+
+%%%%%%%%%%%%% ANHANG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix								% Leitet den Teil Anhang ein
+\pagenumbering{Roman}					% Römische Seitenzahlen	
+\include{Abschnitte/Anhang1}
+% Literaturverzeichnis im Harvard-Stil
+\bibliographystyle{plainurl}
+\bibliography{Literatur}
+
+
+% Das Dokument endet %%%%%%%%%%%%%%%%%%%%%%
+\end{document}

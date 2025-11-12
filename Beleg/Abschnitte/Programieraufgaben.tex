@@ -1,0 +1,259 @@
+\chapter{Programmieraufgaben}
+In diesem Kapitel werden die im Rahmen des Moduls durchgeführten Programmieraufgaben beschrieben. 
+Ziel der Aufgaben war es, grundlegende Mechanismen der Prozess- und Netzwerkkommunikation unter Linux 
+praktisch zu erarbeiten und zu verstehen. Dabei wurden zwei Schwerpunkte gesetzt:
+
+\begin{itemize}
+	\item \textbf{Sockets/Netcode:} Kommunikation zwischen Programmen über das Netzwerk (TCP/IP).
+	\item \textbf{Interprocess Communication (IPC):} Kommunikation zwischen Prozessen auf demselben System.
+\end{itemize}
+
+Jede dieser Aufgaben umfasst mehrere Teilaufgaben, die schrittweise aufeinander aufbauen. 
+Im Folgenden wird zunächst die Socket-basierte Kommunikation beschrieben, während die IPC-Komponenten 
+im Anschluss im zweiten Teil behandelt werden.
+
+\section{Sockets/Netcode}
+
+In dieser Programmieraufgabe sollte die grundlegende Funktionsweise der Netzwerkkommunikation praktisch nachvollzogen werden. Dazu wurden in mehreren Teilschritten Programme entwickelt, die über das TCP/IP-Protokoll miteinander kommunizieren. Ziel war es, die Prinzipien der Client-Server-Architektur sowie deren Erweiterung zu gleichberechtigten Peer-to-Peer-Verbindungen zu verstehen und zu implementieren.
+
+Die Kommunikation zwischen den Anwendungen erfolgt in dieser Programmieraufgabe über Sockets. 
+Sockets stellen eine Methode der Interprozesskommunikation (IPC) dar, 
+die es ermöglicht, Daten zwischen Prozessen auszutauschen, auf demselben Rechner oder über ein Netzwerk. \cite[Kap. 56]{kerrisk2010linux}
+
+
+In der Praxis wird unter Linux ein Socket durch den Systemaufruf \texttt{socket()} erzeugt, der einen Datei-Deskriptor zurückgibt. Dieser Deskriptor kann anschließend wie ein Ein- oder Ausgabekanal verwendet werden, um Daten zu senden oder zu empfangen \cite[man 2 socket]{linux_socket}. 
+
+Im Rahmen dieser Aufgabe wurden mehrere Programme erstellt, die aufeinander aufbauen und schrittweise eine vollständige Kommunikationsstruktur realisieren:
+
+\begin{itemize}
+	\item \textbf{Teilaufgabe a)}: Aufbau eines Servers, der eine Netzwerkverbindung (Port/IP) zur Entgegennahme von Anfragen erstellt und gegebenenfalls auf diese antwortet.
+	\item \textbf{Teilaufgabe b)}: Entwicklung einer oder mehrerer Client-Anwendungen, die sich mit dem Server verbinden und Daten austauschen können.
+	\item \textbf{Teilaufgabe c)}: Erweiterung des Servers um eine gemeinsame Liste, die von den Clients abgefragt und manipuliert werden kann.
+	\item \textbf{Teilaufgabe d)}: Aufhebung der Trennung zwischen Server und Client. Jede Anwendung agiert sowohl als Server als auch als Client, wodurch eine symmetrische Peer-to-Peer-Kommunikation entsteht.
+\end{itemize}
+
+
+\subsection{Teilaufgabe a) – Aufbau eines einfachen TCP-Servers}
+\label{sub:socket_a}
+
+In der ersten Teilaufgabe wurde ein einfacher Server implementiert, 
+der über TCP/IP auf eingehende Verbindungen wartet, 
+Nachrichten von Clients entgegennimmt und entsprechende Bestätigungen sendet. 
+Ziel war es, die grundlegenden Systemaufrufe für den Aufbau einer Netzwerkverbindung 
+unter Linux praktisch nachzuvollziehen.
+
+Der Server erstellt zunächst mit dem Systemaufruf \texttt{socket()} einen Kommunikationsendpunkt 
+und bindet diesen über \texttt{bind()} an eine lokale IP-Adresse und einen Port 
+(in diesem Fall \texttt{6666}). Anschließend wird der Socket mit \texttt{listen()} 
+in den passiven Zustand versetzt, um eingehende Verbindungen zu akzeptieren. 
+Mit \texttt{accept()} werden neue Clients entgegengenommen, 
+und über \texttt{recv()} und \texttt{send()} erfolgt der Nachrichtenaustausch 
+zwischen Server und Client. \cite[man 2 socket]{linux_socket} \cite[man 2 bind]{linux_bind} \cite[man 2 listen]{linux_listen} \cite[man 2 accept]{linux_accept}, \cite[man 2 recv]{linux_recv}
+
+Der Server lauscht auf allen verfügbaren Netzwerkinterfaces (\texttt{INADDR\_ANY}) 
+und ist somit unter der Adresse \texttt{127.0.0.1:6666} lokal erreichbar. 
+Zur Überprüfung der Funktion wurde der Server zunächst mit dem Tool \texttt{netcat (nc)} getestet. 
+Dabei wurde in einem separaten Terminal eine Verbindung zum Server aufgebaut, 
+eine Nachricht gesendet und anschließend die Verbindung beendet.
+
+Abbildung~\ref{fig:socket_test_server_nc} zeigt den Testablauf in zwei Terminals. 
+Links ist die Ausgabe des Servers zu sehen, rechts die des Clients, 
+der über \texttt{netcat} eine Nachricht sendet. 
+Der Server bestätigt den Erhalt der Nachricht und meldet den Verbindungsabbruch, 
+sobald der Client die Verbindung beendet.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/socket_test_server_nc.png}
+	\caption[Server Test 2a)]{Testlauf des Servers mit \texttt{netcat}: Verbindung, Nachrichtenaustausch und Verbindungsende}
+	\label{fig:socket_test_server_nc}
+\end{figure}
+
+Dieser Test diente in erster Linie der Überprüfung der Serverfunktionalität. 
+In der folgenden Teilaufgabe b) wird ein eigener Client implementiert, 
+der denselben Server gezielt ansteuert und eine strukturierte Kommunikation ermöglicht. 
+Damit lässt sich die Funktion des Servers unter realistischen Bedingungen 
+erneut überprüfen und weiter ausbauen.
+
+Das Ergebnis dieser Teilaufgabe zeigt, 
+dass die grundlegende Client-Server-Kommunikation 
+über TCP erfolgreich implementiert wurde. 
+Der Server kann mehrere Verbindungen nacheinander annehmen 
+und reagiert korrekt auf empfangene Nachrichten.
+
+
+\subsection{Teilaufgabe b) – Implementierung eines TCP-Clients}
+
+In dieser Teilaufgabe wurde eine Client-Anwendung entwickelt, die sich mit dem in Teilaufgabe a) 
+implementierten Server verbindet und Daten mit diesem austauscht. 
+Ziel war es, die Client-Seite der TCP-Kommunikation praktisch nachzuvollziehen 
+und den zuvor erstellten Server zu testen.
+
+Der Client erstellt zunächst mit dem Systemaufruf \texttt{socket()} einen eigenen Kommunikationsendpunkt 
+und konfiguriert die Zieladresse des Servers mithilfe der Struktur \texttt{sockaddr\_in}. 
+Die IP-Adresse (\texttt{127.0.0.1}) wird dabei über den Aufruf \texttt{inet\_pton()} 
+in eine binäre Netzwerkdarstellung umgewandelt, 
+und der Port 6666 wird durch \texttt{htons()} in Network Byte Order gebracht 
+\cite[man 3 inet\_pton]{linux_inet_pton}.  
+
+Die Verbindung zum Server wird anschließend mit \texttt{connect()} aufgebaut, 
+wobei der Socket-Deskriptor des Clients an den Server gebunden wird 
+\cite[man 2 connect]{linux_connect}. 
+Nach erfolgreicher Verbindung kann der Client Daten mit dem Server austauschen. 
+Dies geschieht über die Systemaufrufe \texttt{send()} und \texttt{recv()}, 
+welche den Versand und Empfang von Nachrichten über den TCP-Datenstrom ermöglichen 
+\cite[man 2 send]{linux_send} \cite[man 2 recv]{linux_recv}. 
+
+Nach dem Aufbau der Verbindung sendet der Client eine erste Nachricht 
+("Hallo vom Client!") an den Server und wartet auf dessen Antwort. 
+Anschließend bleibt die Verbindung offen, sodass der Benutzer interaktiv 
+weitere Nachrichten senden kann. Die Eingabe \texttt{quit} beendet die Verbindung. 
+Der Ablauf verdeutlicht den bidirektionalen Charakter der TCP-Kommunikation, 
+bei der beide Seiten sowohl Daten senden als auch empfangen können.
+
+Die Implementierung wurde zunächst mit dem in Teilaufgabe a) entwickelten Server getestet. 
+In Abbildung \ref{fig:socket_client_server_test} ist der Testablauf dargestellt: 
+Der Client stellt eine Verbindung her, sendet eine Nachricht, 
+erhält eine Bestätigung vom Server und kann anschließend weitere Nachrichten austauschen.  
+Durch Eingabe von \texttt{quit} wird die Verbindung ordnungsgemäß geschlossen.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/socket_client_server_test.png}
+	\caption[Server und Client Test 2b)]{Interaktive Kommunikation zwischen Client und Server über TCP}
+	\label{fig:socket_client_server_test}
+\end{figure}
+
+Zur Erstellung des Clients wurde wieder ein \texttt{Makefile} verwendet.   
+Die erfolgreiche Kommunikation zwischen Client und Server bestätigt die korrekte Umsetzung 
+der grundlegenden TCP-Mechanismen (Socket-Erzeugung, Verbindungsaufbau, Datenübertragung und Verbindungsabbau).
+
+\subsection{Teilaufgabe c) – Nachrichtenverwaltung im Server}
+\label{sub:socket_c}
+
+In dieser Teilaufgabe wurde der bestehende Server aus Teilaufgabe a) so erweitert, 
+dass er eine einfache Nachrichtenliste im Arbeitsspeicher verwaltet. 
+Clients können über die bestehende TCP/IP-Verbindung Befehle an den Server senden, 
+um diese Liste abzufragen oder zu verändern.
+
+Die Kommunikation erfolgt weiterhin über Sockets, wie im Abschnitt \ref{sub:socket_a}
+bereits beschrieben. Grundlage bilden die dort erläuterten Systemaufrufe 
+\texttt{socket()}, \texttt{bind()}, \texttt{listen()}, \texttt{accept()}, 
+\texttt{recv()} und \texttt{send()}, die hier unverändert verwendet werden. 
+Der Server nimmt dabei Textbefehle entgegen und führt entsprechende Operationen aus.
+
+\medskip
+
+\noindent
+\textbf{Unterstützte Befehle:}
+
+\begin{itemize}
+	\item \texttt{ADD <Text>} – fügt eine neue Nachricht an das Ende der Liste an.
+	\item \texttt{LIST} – gibt alle gespeicherten Nachrichten mit Indexnummern aus.
+	\item \texttt{DELETE <id>} – löscht die Nachricht mit der angegebenen Indexnummer.
+	\item \texttt{MOVE <from> <to>} – verschiebt eine Nachricht innerhalb der Liste.
+	\item \texttt{QUIT} – beendet die aktuelle Verbindung.
+\end{itemize}
+
+\noindent
+Damit entsteht eine einfache textbasierte Steuerung, bei der jeder Befehl eine bestimmte Listenoperation auslöst. 
+Die Nachrichten selbst werden in einem statischen Array im Hauptspeicher abgelegt. 
+Jede Operation erfolgt sequentiell, d.\,h.\ der Server verarbeitet immer nur einen Client gleichzeitig.
+
+Die Funktionsweise des erweiterten Servers ist wie folgt.
+Nach dem Start erstellt der Server zunächst ein Socket und bindet es an Port 6666, wie in \ref{sub:socket_a} bereits geschildert.
+Der Socket wird über \texttt{listen()} in den passiven Modus versetzt, sodass eingehende Verbindungen akzeptiert werden können. 
+Hier kommt hinzu, dass jede angenommene Verbindung über eine Schleife verarbeitet wird: der Server empfängt die Eingaben eines Clients über \texttt{recv()}, wertet sie per Stringanalyse (\texttt{strncmp()}, \texttt{strtok()}) aus und führt die passende Operation aus. 
+Die Ergebnisse werden anschließend über \texttt{send()} zurückgegeben. 
+Bei der Eingabe von \texttt{QUIT} wird die Verbindung geordnet beendet.  
+Zahlenparameter (z.\,B.\ bei \texttt{DELETE} oder \texttt{MOVE}) werden mit \texttt{strtol()} in Integer-Werte konvertiert, wobei auf Gültigkeit und Bereichsüberschreitungen geprüft wird.
+
+\noindent
+Der eigene interaktive Client aus Teilaufgabe b) kann für Tests dieses Servers ebenfalls verwendet werden. 
+Dieser sendet beim Start automatisch die Begrüßungsnachricht „Hallo vom Client!“, was hier zu einer kurzen Fehlermeldung führt, da die Eingabe keinem gültigen Befehl entspricht. 
+Anschließend können alle oben genannten Befehle direkt genutzt werden, um die Funktionalität zu prüfen.
+  
+Zur Veranschaulichung wurde der Server und der Client in separaten Terminals gestartet (Abbildung~\ref{fig:server_client_test_c}). 
+Links ist die Serverausgabe zu sehen, rechts der Client, der die Befehle eingibt.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/server_client_test_c.png}
+	\caption[Server und Client Test 2c)]{Kommunikation zwischen Server (links) und Client (rechts) – Test der Befehle \texttt{ADD}, \texttt{LIST}, \texttt{DELETE}, \texttt{MOVE} und \texttt{QUIT}.}
+	\label{fig:server_client_test_c}
+\end{figure}
+ 
+Mit dieser Erweiterung kann der Server nicht mehr nur einfache Nachrichten empfangen, sondern verwaltet einen dynamischen Nachrichtenspeicher, der über einfache Textkommandos steuerbar ist. 
+
+
+\subsection{Teilaufgabe d) -- Vereinheitlichung von Client und Server}
+
+In dieser Teilaufgabe wird die bisherige Trennung zwischen Client- und Server-Anwendung aufgehoben. 
+Anstelle zweier separater Programme wird eine einheitliche Peer-to-Peer Anwendung entwickelt, 
+in der jede Instanz sowohl eingehende Verbindungen annehmen (Server-Funktion) 
+als auch selbst Verbindungen initiieren (Client-Funktion) kann. 
+Damit kann jede Anwendung gleichzeitig Anfragen empfangen und senden.
+
+Das Programm \texttt{anfrage\_peer.c} kombiniert die Funktionalitäten der vorherigen Teilaufgaben 
+in einer einzigen Applikation. Es besteht im Wesentlichen aus drei Hauptkomponenten:
+
+\begin{itemize}
+	\item \textbf{Listener-Thread:} 
+	Der Listener-Thread erstellt mittels \texttt{socket()}, \texttt{bind()} und \texttt{listen()} 
+	einen TCP-Server, der auf eingehende Verbindungen wartet. 
+	Jede angenommene Verbindung wird an einen separaten Thread weitergegeben, 
+	der über \texttt{pthread\_create()} gestartet wird. \cite[man 3 pthread\_create]{linux_pthread_create}
+	
+	\item \textbf{Connection-Handler-Threads:} 
+	Jeder Thread bearbeitet genau eine aktive Verbindung. 
+	Über \texttt{recv()} werden eingehende Befehle empfangen, interpretiert und verarbeitet. 
+	Nach der Verarbeitung wird eine Antwort mit \texttt{send()} an den Peer zurückgeschickt. 
+	
+	
+	\item \textbf{Kommandozeilen-Interface (Main Thread):}
+	Das Hauptprogramm stellt eine interaktive CLI bereit, 
+	über die Verbindungen hergestellt und Befehle (vgl. Abschnitt \ref{sub:socket_c}) an andere Peers gesendet werden können:
+	\begin{itemize}
+		\item \texttt{connect <ip> <port>} -- Verbindet zu anderem Peer
+		\item \texttt{peers} -- Listet alle aktiven Verbindungen
+		\item \texttt{send <idx> <COMMAND>} -- Sendet Befehl an Peer mit Index
+		\item \texttt{local\_list} -- Zeigt lokale Nachrichtenliste
+		\item \texttt{exit} -- Beendet den Peer
+	\end{itemize}
+\end{itemize}
+
+
+Der Zugriff auf die globale Nachrichtenliste (\texttt{messages[]}) 
+und die Peer-Liste (\texttt{peers[]}) wird jeweils durch einen 
+\texttt{pthread\_mutex\_t}-Lock geschützt. 
+Dies stellt sicher, dass mehrere Threads nicht gleichzeitig auf dieselben Datenstrukturen zugreifen. \cite[man 3 pthread\_create]{linux_pthread_create}, \cite[man 3 pthread\_mutex\_init]{linux_pthread_mutex_init}
+
+Die Kommunikation erfolgt weiterhin über TCP-Sockets. 
+Jede Nachricht wird als Textbefehl übermittelt und zeilenweise verarbeitet. 
+Zur Verwaltung der Nachrichten werden die  Kernfunktionen aus Abschnitt \ref{sub:socket_c} angepassten und wiederverwendet.
+
+Der Zugriff auf diese Funktionen ist ebenfalls mutex-geschützt.
+
+Zur Überprüfung der Funktionalität wurden zwei Peers gestartet und miteinander verbunden. 
+Peer 1 lauscht auf Port 6666, während Peer 2 sich aktiv verbindet und verschiedene Befehle sendet.
+Beide Peers laufen parallel in separaten Terminals und kommunizieren über TCP. 
+Im Test werden Nachrichten zwischen den Peers gesendet, gelistet, verschoben und gelöscht, um die Funktionsfähigkeit der P2P-Kommunikation zu demonstrieren.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/peer_test_1.png}
+	\caption[Kommunikation zwischen zwei Peers Test 2d)]{Kommunikation zwischen zwei Peers: Peer 1 (links) lauscht auf Port 6666, Peer 2 (rechts) verbindet sich aktiv und sendet Befehle.}
+	\label{fig:peer_test_1}
+\end{figure}
+
+\noindent
+Abbildung \ref{fig:peer_test_1} zeigt den Verlauf der Interaktion: 
+Nachdem Peer 2 eine Verbindung zu Peer 1 aufgebaut hat, werden nacheinander verschiedene Befehle ausgeführt 
+(\texttt{ADD}, \texttt{LIST}, \texttt{MOVE}, \texttt{DELETE}, \texttt{QUIT}). 
+Die Ausgabe des linken Terminals (Peer 1) zeigt die empfangenen Nachrichten und die interne Verarbeitung, 
+während das rechte Terminal (Peer 2) die gesendeten Kommandos und die empfangenen Antworten darstellt.
+
+Der Test zeigt, dass die Kommunikation zwischen beiden Peers bidirektional und unabhängig von der Verbindungsrichtung funktioniert. 
+
+Mit dieser Implementierung wurde eine funktionierende Peer-to-Peer-Struktur geschaffen, 
+die Client- und Serverfunktionen in einer einzigen Anwendung vereint. 
+Jeder Peer kann selbstständig Nachrichten austauschen, verwalten und gleichzeitig mehrere Verbindungen handhaben. 

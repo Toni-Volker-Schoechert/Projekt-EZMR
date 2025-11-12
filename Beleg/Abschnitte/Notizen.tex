@@ -1,0 +1,132 @@
+Vorschlag zur Gliederung und Inhalt für deinen Beleg
+1 Einleitung
+
+    Motivation: Warum machst du das Praktikum und die Programmieraufgaben? Was ist der Nutzen?
+
+    Aufgabenstellung: Kurze Übersicht, was gemacht werden soll (z.B. Netzwerksockets programmieren).
+
+    Aufbau der Arbeit: Kurz erklären, wie die Arbeit strukturiert ist.
+
+2 Programmieraufgaben
+2.1 Sockets/Netcode
+
+    2.1.1 Teilaufgabe a)
+
+        Beschreibung der Aufgabe (z.B. TCP-Server erstellen)
+
+        Vorgehensweise / Umsetzung (Beschreibung wie du den Server programmiert hast)
+
+        Erläuterung des Codes (wichtige Funktionen, Bibliotheken, Vorgehen)
+
+        Tests / Ergebnisse (z.B. mit netcat getestet)
+
+        Probleme und Lösungen
+
+        Fazit / Erkenntnisse
+
+(Falls weitere Teilaufgaben kommen, kommen sie hier als 2.1.2, 2.1.3, …)
+3 Praktikum
+
+    3.1 Beschreibung des Praktikums
+
+    3.2 Aufgaben im Praktikum
+
+    3.3 Erlernte Fähigkeiten / Erkenntnisse
+
+    3.4 Herausforderungen / Lösungen
+
+    3.5 Fazit zum Praktikum
+
+5 Quellen
+
+    Literatur, Man-Pages, Webseiten, Tutorials etc.
+
+6 Anhang (optional)
+
+    Vollständiger Code
+
+    Screenshots
+
+    Testprotokolle
+
+Tipps
+
+    Jede Aufgabe in einen eigenen Unterabschnitt (z.B. 2.1.1, 2.1.2)
+
+    Erkläre nicht nur was, sondern auch warum du so vorgegangen bist
+
+    Nutze Bilder oder Diagramme, falls sinnvoll
+
+    Halte das Inhaltsverzeichnis aktuell, das erleichtert die Navigation
+
+    Das Abbildungsverzeichnis brauchst du nur, wenn du viele Bilder/Grafiken hast
+
+
+    1. Code selbst Schritt für Schritt durchgehen
+
+    Lies dir den Code abschnittsweise durch (z.B. Zeile 1–20, dann 21–40 usw.).
+
+    Überlege:
+
+        Was macht dieser Abschnitt?
+
+        Welche Funktionen werden verwendet?
+
+        Warum ist das nötig?
+
+        Wie hängen die Teile zusammen?
+
+2. Man-Pages parallel nutzen
+
+    Suche für jede unbekannte Funktion die passende Man-Page (man 2 socket, man 2 bind usw.).
+
+    Lies die Beschreibung und probiere zu verstehen, welche Argumente die Funktion erwartet und was sie macht.
+
+    Notiere wichtige Punkte (kurz und prägnant).
+
+3. Schreibe eigene kurze Erklärungen zu jedem Schritt
+
+Zum Beispiel:
+
+    „Der Server erstellt zuerst mit socket() einen TCP/IP Socket. Das ist die Kommunikationsschnittstelle für das Netzwerk.“
+
+    „Mit bind() wird der Socket an die Adresse und den Port gebunden, damit Verbindungen akzeptiert werden können.“
+
+    „listen() versetzt den Socket in den Zustand, auf eingehende Verbindungen zu warten.“
+
+    „accept() blockiert, bis ein Client verbindet, und gibt einen neuen Socket für den Dialog zurück.“
+
+    „Daten werden mit recv() gelesen und mit send() eine Antwort gesendet.“
+
+4. Teste den Code selbst
+
+    Führe das Programm aus, spiele mit netcat oder telnet rum.
+
+    Probiere verschiedene Eingaben aus.
+
+    Beobachte, was passiert und notiere es.
+
+5. Visualisiere den Ablauf (optional)
+
+    Zeichne eine kleine Skizze:
+
+        Server wartet → Client verbindet → Daten senden/empfangen → Verbindung schließen
+
+    Das hilft beim Verstehen und Erklären.
+
+6. Formuliere für den Beleg
+
+    Nutze deine eigenen Notizen, um klar und verständlich zu beschreiben, wie das Programm funktioniert.
+
+    Vermeide es, einfach den Code zu kopieren, sondern schreibe in eigenen Worten.
+
+    Ergänze wichtige technische Details, z.B. warum htons() nötig ist, oder was INADDR_ANY bedeutet.
+
+7. Fragen stellen und klären
+
+    Wenn etwas unklar ist, frag hier oder suche Beispiele im Netz.
+
+    Verstehe auch, was passiert, wenn etwas schiefgeht (z.B. was bind() bei Fehlern macht).
+
+
+    

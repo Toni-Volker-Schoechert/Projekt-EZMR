@@ -1,0 +1,243 @@
+\chapter{Praktikum}
+
+In diesem Kapitel werden die durchgeführten Praktikumsaufgaben zur mobilen Robotik dokumentiert. 
+Ziel ist es, die praktischen Arbeiten mit ROS 2 nachvollziehbar darzustellen, die Umsetzung eigener Pakete zu beschreiben und die dabei gewonnenen Erkenntnisse zu reflektieren. 
+Die Aufgaben sind in einzelne Abschnitte gegliedert, die jeweils eine kurze Einleitung, die Zielsetzung, die Umsetzung und die Auswertung enthalten.
+
+\section{ROS 2 Grundlagen und Arbeitsumgebung}
+
+Für die Durchführung des Praktikums wurde eine virtuelle Maschine mit Ubuntu 22.04 und der ROS 2-Distribution \textit{Humble} \cite{macenski2022} verwendet. 
+Die VM wurde speziell für den Einsatz mit ROS 2 vorbereitet, wodurch alle erforderlichen Abhängigkeiten bereits installiert waren.
+
+Um die ROS-Umgebung bei jedem Start eines Terminals automatisch zu initialisieren, wurde folgender Befehl ausgeführt:
+\begin{verbatim}
+	echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+\end{verbatim}
+Damit wird das Setup-Skript beim Öffnen eines neuen Terminals automatisch geladen. 
+Dies erspart das manuelle Aktivieren des Arbeitsbereichs und vereinfacht die tägliche Arbeit mit ROS erheblich. \cite{ros2env}
+
+Zur Funktionsprüfung wurde die bekannte \texttt{turtlesim}-Simulation gestartet entsprechend der Quelle \cite{turtlesim}:
+\begin{verbatim}
+	ros2 run turtlesim turtlesim_node
+	ros2 run turtlesim turtle_teleop_key
+\end{verbatim}
+Die Simulation ließ sich fehlerfrei ausführen, und sämtliche Tests verliefen wie erwartet. 
+Über die \texttt{turtlesim}-Beispielanwendung konnten zudem die grundlegenden Kommunikationsmechanismen von ROS 2 nachvollzogen werden. 
+Dabei kommunizieren einzelne \textit{Nodes} über sogenannte \textit{Topics}, über die beispielsweise Bewegungsbefehle in Form von Geschwindigkeitsnachrichten übertragen werden. 
+Diese Erkenntnisse bilden die Grundlage für die Entwicklung eigener ROS 2-Pakete in den folgenden Arbeitsschritten.
+
+\section{Erstellung eines eigenen ROS~2-Pakets}
+\label{sec:ros2_package}
+
+In diesem Abschnitt wurde ein eigenes ROS 2-Paket erstellt, um ein Verständnis für die grundlegende Struktur und den Aufbau von ROS 2-Anwendungen zu entwickeln. 
+Als Basis dient die offizielle Dokumentation zu Arbeitsbereichen und Paketen in ROS 2 \cite{ros2_workspace, ros2_package_creation, ros2_cpp_pubsub}.
+
+\subsection{Einrichtung des Arbeitsbereichs}
+\label{sub:setup_ws}
+
+Der verwendete Arbeitsbereich (\texttt{ros2\_ws}) basiert auf der in Abschnitt \ref{sec:ros2_setup} beschriebenen Umgebung. Der folgende Setup des Arbeitsbereiches basiert sich an dem Tutorial \cite{ros2_workspace}. 
+ROS 2 nutzt ein sogenanntes \textit{Underlay}- und \textit{Overlay}-Konzept: 
+Das Underlay umfasst die Basisinstallation (hier die ROS 2-Distribution \textit{Humble}), 
+während im Overlay eigene Pakete ergänzt werden können, ohne die Systeminstallation zu verändern. 
+
+Zunächst wurde ein neuer Arbeitsbereich mit zugehörigem \texttt{src}-Ordner angelegt:
+\begin{verbatim}
+	mkdir -p ~/ros2_ws/src
+\end{verbatim}
+Im \texttt{src}-Ordner können die neuen Pakete angelegt werden.
+Wenn ein neues Paket im \texttt{src}-Ordner angelegt wurde, kann das Overlay gebaut werden:
+\begin{verbatim}
+	cd ~/ros2_ws
+	colcon build
+\end{verbatim}
+
+Anschließend sollte in einem neuen Terminal das Overlay gesourct werden:
+\begin{verbatim}
+	cd ~/ros2_ws
+	source install/local_setup.bash
+\end{verbatim}
+
+
+\subsection{Struktur des ROS 2-Pakets}
+
+Ein ROS 2-Paket dient der strukturierten Organisation und dem Wiederverwenden von Code. 
+Es enthält für C++ folgende Elemente:
+\begin{itemize}
+	\item \texttt{CMakeLists.txt} – beschreibt den Build-Prozess (CMake-Konfiguration),
+	\item \texttt{package.xml} – enthält Metadaten, Abhängigkeiten und Lizenzinformationen,
+	\item \texttt{src/} – Quellcode-Verzeichnis,
+	\item \texttt{include/} – Header-Dateien (bei größeren Projekten).
+\end{itemize}
+
+Für die Entwicklung in C++ wird das Buildsystem \texttt{ament\_cmake} verwendet, und als Build-Tool dient \texttt{colcon}.
+
+\subsection{Erstellung des eigenen Pakets}
+
+Das Paket \texttt{cpp\_turtle\_controller} wurde mit folgendem Befehl erzeugt:
+\begin{verbatim}
+	cd ~/ros2_ws/src
+	ros2 pkg create --build-type ament_cmake \
+	--license Apache-2.0 cpp_turtle_controller
+\end{verbatim}
+Damit wird automatisch die Grundstruktur des Pakets angelegt.  
+In der Datei \texttt{package.xml} wurden anschließend die relevanten Abhängigkeiten ergänzt:
+\begin{verbatim}
+	<depend>rclcpp</depend>
+	<depend>geometry_msgs</depend>
+\end{verbatim}
+sowie eine kurze Beschreibung und der Maintainer eingetragen.  
+Alle geänderten Dateien dieses Paketes und der anderen Pakete liegen im Githup Repository zu diesem Projekt.
+
+\subsection{Implementierung Programm}
+
+Im Verzeichnis \texttt{src/} des neuen Pakets wurde die Datei \texttt{turtle\_square.cpp} erstellt.
+Sie implementiert eine ROS 2-Node, die periodisch \texttt{geometry\_msgs/msg/Twist}-Nachrichten auf das Topic \texttt{/turtle1/cmd\_vel} publiziert,
+um die Turtle in der \texttt{turtlesim}-Simulation automatisch ein Quadrat fahren zu lassen.
+Die Umsetzung und Beschreibung dieses Abschnitts orientiert sich an der Quelle \cite{ros2_cpp_pubsub}.
+
+Die Steuerung erfolgt über einen zeitbasierten Zyklus:
+\begin{itemize}
+	\item Für eine definierte Zeit fährt die Turtle geradeaus.
+	\item Danach erfolgt eine Drehung um ca. 90°.
+	\item Der Zyklus wiederholt sich kontinuierlich.
+\end{itemize}
+  
+In Listing \ref{lst:turtle_controller} ist ein Ausschnitt des Programmcodes dargestellt, der den zentralen Steuermechanismus der Node zeigt.
+
+Der gezeigte Abschnitt bildet das Kernstück der Anwendung:
+Hier wird über eine einfache Zustandslogik (step\_) zwischen zwei Bewegungsphasen unterschieden, einer Vorwärtsbewegung und einer anschließenden Drehung um etwa 90 Grad.
+Durch die wiederholte Ausführung dieser Logik entsteht die charakteristische quadratische Bewegung der Turtle in der Simulation.
+
+Der restliche Programmaufbau (Publisher, Timer und Node-Initialisierung) folgt der Standardstruktur einer ROS 2-C++-Node und ist daher nicht im Detail dargestellt.
+
+\begin{lstlisting}[language=C++,caption={Node zur Steuerung der turtlesim-Turtle},label={lst:turtle_controller}]
+	publisher_ = this->create_publisher<geometry_msgs::msg::Twist>(
+	"/turtle1/cmd_vel", 10);
+	
+	if (step_ < 20) {
+		msg.linear.x = 0.5;   // Vorwärtsbewegung
+		msg.angular.z = 0.0;
+	} else if (step_ < 36) {
+		msg.linear.x = 0.0;
+		msg.angular.z = 1.0;  // Drehung ca. 90 Grad
+	} else {
+		step_ = 0;
+	}
+\end{lstlisting}
+
+\subsection{Build und Test}
+
+Nach der Implementierung wurde das Paket wie bereits allgemein in Abschnitt \ref{sub:setup_ws} beschrieben gebaut:
+\begin{verbatim}
+	cd ~/ros2_ws
+	colcon build --packages-select cpp_turtle_controller
+\end{verbatim}
+ Anschließend in einem neuen Terminal wurde die \texttt{turtlesim}-Simulation gestartet und in einem separaten Terminal das Overlay mit dem neuen Paket gestartet und der Node ausgeführt.
+\begin{verbatim}
+	cd ~/ros2_ws
+	source install/local_setup.bash
+	ros2 run cpp_turtle_controller turtle_square
+\end{verbatim}
+
+\subsection{Ergebnis und Beobachtungen}
+
+Das Ergebnis des Tests ist in Abbildung~\ref{fig:turtle_sq} dargestellt.  
+Die Turtle bewegte sich wie erwartet entlang einer annähernd quadratischen Bahn.  
+Aufgrund des fehlenden Positions-Feedbacks traten jedoch leichte Abweichungen in den Drehwinkeln auf, 
+wodurch sich die Form des Quadrats über mehrere Zyklen leicht verzerrte.  
+
+Insgesamt funktionierte die Steuerlogik zuverlässig, und die Bewegungssequenzen wurden korrekt ausgeführt.  
+Durch die Implementierung eines zusätzlichen \textit{Subscribers}, der Positionsdaten aus der \texttt{turtlesim}-Simulation auswertet, 
+könnten die auftretenden Ungenauigkeiten reduziert werden.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{Bilder/turtlesim_square_1.png}
+	\caption{Quadratische Fahrbewegung in der \texttt{turtlesim}-Simulation}
+	\label{fig:turtle_sq}
+\end{figure}
+
+\section{Programmierung eines eigenen Roboters}
+\label{sec:eigener_roboter}
+
+Ziel dieser Aufgabe war es, den eigenen Roboter so zu programmieren, dass er über das ROS2-Topic \texttt{/cmd\_vel} Geschwindigkeitsbefehle empfangen und seine Motoren entsprechend ansteuern kann. Dazu wurde ein ESP32-Mikrocontroller verwendet, der mithilfe der Bibliothek \textit{Micro-ROS} direkt mit dem ROS2-Netzwerk kommuniziert. Der ESP32 fungiert dabei als Micro-ROS-Client und steht über eine serielle Verbindung mit dem auf dem Host-PC laufenden Micro-ROS-Agenten in Kontakt.
+
+\subsection{Aufbau und Funktionsweise}
+
+Die Programmierung erfolgte in der Entwicklungsumgebung \textit{PlatformIO} unter Visual Studio Code. Das auf dem ESP32 ausgeführte Programm definiert eine Node mit dem Namen \texttt{esp32\_cmd\_vel\_node}, welche zwei zentrale ROS-2-Kommunikationsobjekte beinhaltet:
+
+\begin{itemize}
+	\item einen \textbf{Subscriber} auf das Topic \texttt{/cmd\_vel} vom Typ \texttt{geometry\_msgs/msg/Twist}, über den lineare und angulare Geschwindigkeitskomponenten empfangen werden,
+	\item sowie einen \textbf{Publisher} auf das Topic \texttt{/debug} vom Typ \texttt{std\_msgs/msg/String}, der zu Debug-Zwecken Status- und Bewegungsinformationen zurückmeldet.
+\end{itemize}
+
+Im Callback \texttt{cmd\_vel\_callback()} werden die empfangenen Geschwindigkeitsdaten in differenzielle Motorbefehle übersetzt. Hierfür wird eine einfache Differentialsteuerung verwendet, bei der aus der linearen und der Winkelgeschwindigkeit die Drehzahlen der linken und rechten Motoren berechnet werden. Die resultierenden Werte werden über eine UART-Schnittstelle an die Motorsteuerung gesendet. Zusätzlich werden die berechneten Werte als Textnachricht über das Topic \texttt{/debug} publiziert, um die Funktionsweise während der Laufzeit überwachen zu können.
+
+Nachfolgend ist ein Ausschnitt des zentralen Steuerteils dargestellt:
+
+\begin{lstlisting}[language=C++, caption={Ausschnitt des Micro-ROS-Programms auf dem ESP32}, label={lst:esp32_code}]
+	void cmd_vel_callback(const void * msgin) {
+		const geometry_msgs__msg__Twist * received_msg = 
+		(const geometry_msgs__msg__Twist *)msgin;
+		
+		float linear = received_msg->linear.x;
+		float angular = received_msg->angular.z;
+		
+		int16_t left_motor = linear - angular;
+		int16_t right_motor = linear + angular;
+		
+		left_motor = constrain(left_motor, -100, 100);
+		right_motor = constrain(right_motor, -100, 100);
+		
+		uint8_t left_dir  = (left_motor >= 0) ? 1 : 0;
+		uint8_t right_dir = (right_motor >= 0) ? 0 : 1;
+		
+		sendMotorCommand(1, 0, left_dir, abs(left_motor));
+		sendMotorCommand(2, 0, right_dir, abs(right_motor));
+	}
+\end{lstlisting}
+
+\subsection{Durchführung}
+
+Nach dem Hochladen des Programms auf den ESP32 wurde der Micro-ROS-Agent auf dem Host-Rechner gestartet und der Mikrocontroller über USB erneut verbunden.  
+Nach erfolgreicher Verbindung meldete sich der ESP32 im ROS-2-Netzwerk als Node an und begann, die über \texttt{/cmd\_vel} gesendeten Bewegungsbefehle auszuwerten.  
+Zur Überprüfung der Funktionalität konnten über die folgenden Befehle in einem Terminal Testnachrichten gesendet und Rückmeldungen angezeigt werden:
+
+\begin{verbatim}
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
+"{linear: {x: 1.0}, angular: {z: 0.0}}"\part{	ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.0}}"}
+	ros2 topic echo /debug
+\end{verbatim}
+
+Anschließend wurde das zuvor in Abschnitt \ref{sec:ros2_package} erstellte ROS-Paket, das ursprünglich die \textit{turtlesim}-Schildkröte steuerte, erneut ausgeführt.  
+Damit der reale Roboter anstelle der Simulation auf dieselben Bewegungsbefehle reagieren konnte, musste im Programmcode von \texttt{turtle\_square} das Topic, auf das die Befehle publiziert werden, von \texttt{/turtle1/cmd\_vel} auf das allgemeine \texttt{/cmd\_vel} geändert werden.  
+Nach dieser Anpassung reagierte der Roboter auf die veröffentlichten Bewegungsbefehle des \texttt{turtle\_square}-Nodes und führte die gleiche Bewegungssequenz aus wie in der Simulation.
+
+
+\subsection{Beobachtungen}
+
+Der Roboter führte die Bewegungssequenz grundsätzlich wie erwartet aus: geradeaus fahren, anschließend drehen und erneut geradeaus fahren.  
+Auffällig war jedoch, dass die Drehungen kleiner ausfielen als in der Simulation.  
+Anstelle 90° Drehungen, wie bei einem Quadrat, waren sie nur halb so groß , wodurch die Trajektorie eher einem unregelmäßigen Polygon entsprach.  
+
+Zeitweise zeigte der Roboter kurzzeitiges Zittern oder Oszillationen, was auf minimale Kommunikationsverzögerungen oder Jitter zwischen Agent und ESP32 hinweist.  
+Trotz dieser Störungen blieb der Roboter weitgehend stabil und driftete nicht signifikant vom Ausgangsbereich ab.
+
+\subsection{Diskussion}
+
+Die Abweichungen zwischen der Simulation und dem realen Verhalten lassen sich durch mehrere Faktoren erklären:
+
+\begin{itemize}
+	\item \textbf{Open-Loop-Steuerung:} Das Programm nutzt kein Sensorfeedback, sodass keine Korrektur von Abweichungen erfolgen kann.
+	\item \textbf{Physikalische Unterschiede:} Reibung, Trägheit und Motordynamik wirken in der Realität, aber nicht in der idealisierten Simulation.
+	\item \textbf{Quantisierung:} Durch die ganzzahlige Verarbeitung (\texttt{uint8\_t}) werden kleine Geschwindigkeitsänderungen gerundet.
+\end{itemize}
+
+\subsection{Fazit}
+
+Der Versuch zeigte, dass die Integration eines ESP32 mit Micro-ROS erfolgreich funktionierte und der Roboter über ROS2-Topics gesteuert werden konnte.  
+Gleichzeitig verdeutlichte er die Grenzen einer offenen Steuerung ohne Rückmeldung: kleine Abweichungen summieren sich über die Zeit und führen zu merkbaren Differenzen zwischen Soll- und Istbewegung.  
+
+Eine mögliche Verfeinerung dieses Programms bestünde darin, Sensordaten (z.B. IMU) rückzuführen, um die ausgeführten Bewegungen präziser steuern zu können. Auf diese Weise ließe sich die geplante Quadratbahn exakter abfahren. Im Rahmen dieser Aufgabe wurde jedoch bewusst auf Sensorfeedback verzichtet, um den Fokus auf die grundlegende Micro-ROS-Kommunikation und die Umsetzung der offenen Steuerung zu legen.
+
+
