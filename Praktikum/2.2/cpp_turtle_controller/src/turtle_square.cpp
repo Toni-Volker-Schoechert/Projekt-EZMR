@@ -1,12 +1,12 @@
 /*
-Name:		turtle_square
+Name:			turtle_square
 Description:	Implementierung eines ROS 2 Nodes in C++, der Bewegungsbefehle
-		an das Topic /turtle1/cmd_vel sendet, um die Turtle in der 
-		turtlesim-Simulation ein Quadrat fahren zu lassen.
-		Die Steuerung erfolgt zeitbasiert (Open-Loop):
-		- Es werden Twist-Nachrichten mit linearer und angularer Geschwindigkeit gesendet
-		- Eine definierte Strecke wird gefahren, dann 90° gedreht
-		- Zyklus wird kontinuierlich wiederholt
+				an das Topic /turtle1/cmd_vel sendet, um die Turtle in der 
+				turtlesim-Simulation ein Quadrat fahren zu lassen.
+				Die Steuerung erfolgt zeitbasiert (Open-Loop):
+				- Es werden Twist-Nachrichten mit linearer und angularer Geschwindigkeit gesendet
+				- Eine definierte Strecke wird gefahren, dann 90° gedreht
+				- Zyklus wird kontinuierlich wiederholt
 */
 
 #include "rclcpp/rclcpp.hpp" // ROS 2 C++ Client-Bibliothek
@@ -15,11 +15,9 @@ Description:	Implementierung eines ROS 2 Nodes in C++, der Bewegungsbefehle
 using namespace std::chrono_literals; // Ermöglicht 100ms-Schreibweise
 
 // Hauptklasse der Node
-class TurtleController : public rclcpp::Node
-{
+class TurtleController : public rclcpp::Node {
 public:
-	TurtleController() : Node("turtle_controller")
-	{
+	TurtleController() : Node("turtle_controller") {
 		// Publisher initialisieren: sendet Twist-Nachrichten an /cmd_vel
 		publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("turtle1/cmd_vel", 10);
 
@@ -31,8 +29,7 @@ public:
 
 private:
 	// Bewegungsfunktion, wird periodisch aufgerufen
-	void move()
-	{
+	void move() {
 		geometry_msgs::msg::Twist msg; // Neue Nachricht vom Typ Twist
 
 		// Steuerlogik:
@@ -65,8 +62,7 @@ private:
 };
 
 // main()-Funktion: Einstiegspunkt der Node
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	// Initialisierung des ROS 2-Systems
 	rclcpp::init(argc, argv);
 
