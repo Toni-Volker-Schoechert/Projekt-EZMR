@@ -243,5 +243,47 @@ Eine mögliche Verfeinerung dieses Programms bestünde darin, Sensordaten (z.B. 
 
 \section{Durchführung der Aufgaben vor Ort}
 
+In diesem Abschnitt wir die Durchführung der praktischen Aufgaben beschrieben. Hierfür wurde die bereitgestellte Rechner mit einer Ubuntu 22.04 verwendet. Für die Bearbeitung wurde als Referenz die Anleitung \ref{} Pfirsich verwendet und wird hier folglich nicht mehr erwähnt.
 
+\subsection{Aufgabe 1}
 
+Ziel der Aufgabe ist es, eine Verbindung mit dem Turtlebot herzustellen und diesen manuell zu bewegen. Die Verbindung zwischen Rechner und Turtlebot wurde dabei automatisch hergestellt. Um die manuelle Bewegung zu ermöglichen, wurde zuerst der Befehl
+\begin{verbatim}
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+\end{verbatim}
+ausgeführt. Dadurch öffnet sich im Terminal eine Auflistung an einfachen Eingaben, durch welche der Turtlebot gesteuert werden kann.
+
+\subsection{Aufgabe 2}
+Als zweiter Teil des Praktikums sollen mit dem Turtlebot visuelle Daten eingelesen und ausgegeben werden. Dafür wird das Programm RViz verwendet. Nach der Ausführung von \begin{verbatim}
+ros2 launch turtlebot4_viz view_robot.launch.py
+\end{verbatim}
+wird das Programm gestartet und es wird ausgehend vom Sichtfeld des Roboters berewits eine Karte aufgezeichnet. 
+
+Zur Auslesung einzelner Werte wurde der Befehl \begin{verbatim}
+ros2 tobic list 
+\end{verbatim}	
+verwendet. Durch das Hinzufügen weiterer Argumente können hier Werte wie der Batteriestand oder der Ladezustand ausgegeben werden.
+
+\subsection{Aufgabe 3}
+
+Hier soll eine gesamte Karte Aufgezeichnet und abgespeichert werden. Dafür wird der Roboter nach Aufgabe 2 manuell weiterbewegt, bis er alle Hindernisse erkannt hat. Das kann visuell mit RViz überprüft werden. Dabei kam es beim ersten Versuch dazu, dass eine nicht existierende Wand eingezeichnet wurde. Diese enstand vermutlich durch den Blindspot hinter dem Roboter, während sich dieser noch in der Startposition auf der Ladestation befand.
+
+Das Abspeichern der Karte erfolgt daraufhin mit \begin{verbatim}
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap 
+"name: data: 'map_name'"
+\end{verbatim}
+
+\subsection{Aufgabe 4}
+
+Um eine autonome Bewegung zu ermöglichen, wurden folgende Befehle durchgeführt:
+\begin{verbatim}
+ros2 launch turtlebot4_navigation localization.launch.py map:=office.yaml
+ros2 launch turtlebot4_navigation nav2.launch.py
+ros2 launch turtlebot4_viz view_robot.launch.py
+\end{verbatim}
+Hiermit wird die vorher abgespeicherte Map in RViz geöffnet und eine Bewegung ermöglicht. Dafür wird mit den Funktionen \" 2D Point Estimate \" eine geschätzte Startposition angegeben und durch \" Nav2 Goal \" ein Ziel festgelegt. Des weiteren muss noch der Befehl \begin{verbatim}
+...
+\end{verbatim}
+ausgeführt werden, wodurch die Lokalisierung des Roboters verbessert wird. Nachdem das Ziel nun gesetzt wird, beginnt der Roboter sich in die Richtung des Ziels zu bewegen und dabei Hindernisse zu umfahren. Bei unserem Durchlauf musste er dabei erst in die entgegengestzte Richtung fahren, befor er das Ziel erreichen konnte. Beim Erreichen des Ziels hat er sich noch zwei mal um sich selbst gedreht.
+
+\subsection{Aufgabe 5}

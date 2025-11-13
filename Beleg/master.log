@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2025.11.12)  12 NOV 2025 16:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2025.11.12)  13 NOV 2025 14:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1260,8 +1260,10 @@ Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... found 'babel' package.
 Package csquotes Info: Adjusting default style.
 Package csquotes Info: Redefining alias 'default' -> 'ngerman'.
-
-No file master.aux.
+ (./master.aux
+(./recommand.aux) (./Titelseite.aux) (./Abschnitte/Einleitung.aux)
+(./Abschnitte/Programieraufgaben.aux) (./Abschnitte/Praktikum.aux)
+(./Abschnitte/Anhang1.aux))
 \openout1 = `master.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 8.
@@ -1364,6 +1366,8 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 8.
 LaTeX Info: Redefining \pageref on input line 8.
 LaTeX Info: Redefining \nameref on input line 8.
+
+(./master.out) (./master.out)
 \@outlinefile=\write5
 \openout5 = `master.out'.
 
@@ -1465,6 +1469,7 @@ LaTeX Font Info:    Trying to load font information for T1+lmss on input line 1
  (/usr/share/texmf/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
+(./master.toc)
 \tf@toc=\write6
 \openout6 = `master.toc'.
 
@@ -1473,7 +1478,12 @@ File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 
 
 
-]
+] (./master.lof
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 9
+.
+ (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+))
 \tf@lof=\write7
 \openout7 = `master.lof'.
 
@@ -1533,11 +1543,6 @@ Overfull \hbox (8.3554pt too wide) in paragraph at lines 11--14
 Package natbib Warning: Citation `kerrisk2010linux' on page 2 undefined on inpu
 t line 21.
 
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 2
-4.
-(/usr/share/texmf/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
 
 Package natbib Warning: Citation `linux_socket' on page 2 undefined on input li
 ne 24.
@@ -1581,11 +1586,7 @@ ne 51.
 Package natbib Warning: Citation `linux_recv' on page 3 undefined on input line
  51.
 
-
-LaTeX Warning: Reference `fig:socket_test_server_nc' on page 3 undefined on inp
-ut line 59.
-
-<Bilder/socket_test_server_nc.png, id=40, 2127.95pt x 234.8775pt>
+<Bilder/socket_test_server_nc.png, id=106, 2127.95pt x 234.8775pt>
 File: Bilder/socket_test_server_nc.png Graphic file (type png)
 <use Bilder/socket_test_server_nc.png>
 Package pdftex.def Info: Bilder/socket_test_server_nc.png  used on input line 6
@@ -1622,34 +1623,20 @@ tt/m/n/10.95 connect() \T1/ptm/m/n/10.95 auf-ge-baut, wo-bei der Socket-Deskrip
 tor
  []
 
-
-LaTeX Warning: Reference `fig:socket_client_server_test' on page 4 undefined on
- input line 115.
-
-<Bilder/socket_client_server_test.png, id=50, 2124.93875pt x 310.15875pt>
+<Bilder/socket_client_server_test.png, id=115, 2124.93875pt x 310.15875pt>
 File: Bilder/socket_client_server_test.png Graphic file (type png)
 <use Bilder/socket_client_server_test.png>
 Package pdftex.def Info: Bilder/socket_client_server_test.png  used on input li
 ne 122.
 (pdftex.def)             Requested size: 441.01773pt x 64.36856pt.
 [4 <./Bilder/socket_client_server_test.png>]
-
-LaTeX Warning: Reference `sub:socket_a' on page 5 undefined on input line 139.
-
-
-LaTeX Warning: Reference `sub:socket_a' on page 5 undefined on input line 164.
-
-
-LaTeX Warning: Reference `fig:server_client_test_c' on page 5 undefined on inpu
-t line 176.
-
-<Bilder/server_client_test_c.png.png, id=60, 2104.86375pt x 1156.32pt>
+<Bilder/server_client_test_c.png.png, id=125, 2104.86375pt x 1156.32pt>
 File: Bilder/server_client_test_c.png.png Graphic file (type png)
 <use Bilder/server_client_test_c.png.png>
 Package pdftex.def Info: Bilder/server_client_test_c.png.png  used on input lin
 e 181.
 (pdftex.def)             Requested size: 441.01773pt x 242.26976pt.
-[5]
+ [5]
 
 Package natbib Warning: Citation `linux_pthread_create' on page 6 undefined on 
 input line 205.
@@ -1661,9 +1648,6 @@ tellt mit-tels \T1/lmtt/m/n/10.95 socket()\T1/ptm/m/n/10.95 , \T1/lmtt/m/n/10.9
 5 bind() \T1/ptm/m/n/10.95 und \T1/lmtt/m/n/10.95 listen() \T1/ptm/m/n/10.95 ei
 nen
  []
-
-
-LaTeX Warning: Reference `sub:socket_c' on page 6 undefined on input line 215.
 
 [6 <./Bilder/server_client_test_c.png.png>]
 
@@ -1681,18 +1665,11 @@ n. (\T1/ptm/b/n/10.95 ?\T1/ptm/m/n/10.95 , man 3 pthread_create), (\T1/ptm/b/n/
 10.95 ?\T1/ptm/m/n/10.95 , man 3 pthread_mutex_init) 
  []
 
-
-LaTeX Warning: Reference `sub:socket_c' on page 7 undefined on input line 233.
-
-<Bilder/peer_test_1.png, id=72, 2038.61626pt x 883.3pt>
+<Bilder/peer_test_1.png, id=137, 2038.61626pt x 883.3pt>
 File: Bilder/peer_test_1.png Graphic file (type png)
 <use Bilder/peer_test_1.png>
 Package pdftex.def Info: Bilder/peer_test_1.png  used on input line 243.
 (pdftex.def)             Requested size: 441.01773pt x 191.07838pt.
-
-LaTeX Warning: Reference `fig:peer_test_1' on page 7 undefined on input line 24
-9.
-
 [7 <./Bilder/peer_test_1.png>]) [8]
 \openout2 = `Abschnitte/Praktikum.aux'.
 
@@ -1741,28 +1718,16 @@ line 38.
 Package natbib Warning: Citation `ros2_cpp_pubsub' on page 11 undefined on inpu
 t line 96.
 
-
-LaTeX Warning: Reference `lst:turtle_controller' on page 11 undefined on input 
-line 105.
-
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 ) [11]
-
-LaTeX Warning: Reference `sub:setup_ws' on page 12 undefined on input line 130.
-
-
-
-LaTeX Warning: Reference `fig:turtle_sq' on page 12 undefined on input line 144
-.
-
-<Bilder/turtlesim_square_1.png, id=112, 176.66pt x 165.61874pt>
+<Bilder/turtlesim_square_1.png, id=174, 176.66pt x 165.61874pt>
 File: Bilder/turtlesim_square_1.png Graphic file (type png)
 <use Bilder/turtlesim_square_1.png>
 Package pdftex.def Info: Bilder/turtlesim_square_1.png  used on input line 155.
 
 (pdftex.def)             Requested size: 352.81552pt x 330.76913pt.
-[12]
+ [12]
 Overfull \hbox (10.69872pt too wide) in paragraph at lines 167--168
 \T1/ptm/m/n/10.95 Das auf dem ESP32 aus-ge-führ-te Pro-gramm de-fi-niert ei-ne 
 No-de mit dem Na-men \T1/lmtt/m/n/10.95 esp32_cmd_vel_node\T1/ptm/m/n/10.95 ,
@@ -1775,11 +1740,11 @@ ub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.0}}"}[]
 
  []
 
+[15]
 
-LaTeX Warning: Reference `sec:ros2_package' on page 15 undefined on input line 
-212.
+LaTeX Warning: Reference `' on page 16 undefined on input line 246.
 
-[15]) [16]
+[16]) [17]
 \openout2 = `Abschnitte/Anhang1.aux'.
 
  (./Abschnitte/Anhang1.tex)
@@ -1793,23 +1758,14 @@ Package natbib Warning: There were undefined citations.
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `master.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `master.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  D41D8CD98F00B204E9800998ECF8427E;0.
+Package rerunfilecheck Info: File `master.out' has not changed.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 38367 strings out of 480080
- 794797 string characters out of 5891144
- 1473082 words of memory out of 5000000
- 55539 multiletter control sequences out of 15000+600000
+ 38418 strings out of 480080
+ 795638 string characters out of 5891144
+ 1476857 words of memory out of 5000000
+ 55561 multiletter control sequences out of 15000+600000
  530521 words of font info for 86 fonts, out of 8000000 for 9000
  81 hyphenation exceptions out of 8191
  108i,11n,106p,10620b,2578s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1819,10 +1775,10 @@ fb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texlive/texmf
 -dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/typ
 e1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/ut
 mr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on master.pdf (19 pages, 608665 bytes).
+Output written on master.pdf (20 pages, 614992 bytes).
 PDF statistics:
- 291 PDF objects out of 1000 (max. 8388607)
- 243 compressed objects within 3 object streams
- 81 named destinations out of 1000 (max. 500000)
- 240 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 368 PDF objects out of 1000 (max. 8388607)
+ 318 compressed objects within 4 object streams
+ 88 named destinations out of 1000 (max. 500000)
+ 288 words of extra memory for PDF output out of 10000 (max. 10000000)
 
