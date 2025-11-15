@@ -223,7 +223,7 @@ Anstelle 90° Drehungen, wie bei einem Quadrat, waren sie nur halb so groß , wo
 Zeitweise zeigte der Roboter kurzzeitiges Zittern oder Oszillationen, was auf minimale Kommunikationsverzögerungen oder Jitter zwischen Agent und ESP32 hinweist.  
 Trotz dieser Störungen blieb der Roboter weitgehend stabil und driftete nicht signifikant vom Ausgangsbereich ab.
 
-\subsection{Diskussion}
+\subsection{Diskussion und Fazit}
 
 Die Abweichungen zwischen der Simulation und dem realen Verhalten lassen sich durch mehrere Faktoren erklären:
 
@@ -232,8 +232,6 @@ Die Abweichungen zwischen der Simulation und dem realen Verhalten lassen sich du
 	\item \textbf{Physikalische Unterschiede:} Reibung, Trägheit und Motordynamik wirken in der Realität, aber nicht in der idealisierten Simulation.
 	\item \textbf{Quantisierung:} Durch die ganzzahlige Verarbeitung (\texttt{uint8\_t}) werden kleine Geschwindigkeitsänderungen gerundet.
 \end{itemize}
-
-\subsection{Fazit}
 
 Der Versuch zeigte, dass die Integration eines ESP32 mit Micro-ROS erfolgreich funktionierte und der Roboter über ROS2-Topics gesteuert werden konnte.  
 Gleichzeitig verdeutlichte er die Grenzen einer offenen Steuerung ohne Rückmeldung: kleine Abweichungen summieren sich über die Zeit und führen zu merkbaren Differenzen zwischen Soll- und Istbewegung.  
