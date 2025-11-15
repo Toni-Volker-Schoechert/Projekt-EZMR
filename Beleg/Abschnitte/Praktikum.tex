@@ -239,6 +239,129 @@ Gleichzeitig verdeutlichte er die Grenzen einer offenen Steuerung ohne Rückmeld
 Eine mögliche Verfeinerung dieses Programms bestünde darin, Sensordaten (z.B. IMU) rückzuführen, um die ausgeführten Bewegungen präziser steuern zu können. Auf diese Weise ließe sich die geplante Quadratbahn exakter abfahren. Im Rahmen dieser Aufgabe wurde jedoch bewusst auf Sensorfeedback verzichtet, um den Fokus auf die grundlegende Micro-ROS-Kommunikation und die Umsetzung der offenen Steuerung zu legen.
 
 
+\section{Erweiterung durch Sensorik und eigenes Projekt}
+
+Nachdem die Grundbewegung des Roboters funktionierte, sollte im Rahmen der Aufgabe 2.4
+mindestens ein Sensor des Roboters in ein eigenes Projekt integriert werden. Ziel war es,
+den Sensor mithilfe des ESP32 auszulesen, die Messwerte in das ROS\,2-Netzwerk zu
+publizieren und auf dem Host-PC weiterzuverarbeiten.
+
+In diesem Projekt werden die beiden \emph{Bumper-Sensoren} des Roboters sowie der
+\emph{Buzzer} genutzt. Die Bumper dienen als einfache kollisionsbasierte Hinderniserkennung und lösen abhängig von der Fahrtrichtung links oder rechts ein eigenes Verhalten aus. Der
+Buzzer wird dabei genutzt, um akustische Rückmeldungen zu erzeugen.
+
+Der vollständige Quellcode für ESP32 (micro-ROS) und den ROS-2-Node befindet sich im
+zugehörigen GitHub-Repository.
+
+\subsection{Aufbau des Systems}
+
+Der Roboter verfügt über zwei vorne montierte Bumper-Schalter (links und rechts),
+welche im ESP32 als digitale Eingänge mit \texttt{INPUT\_PULLUP} konfiguriert wurden.
+Ein gedrückter Bumper erzeugt ein \texttt{LOW}-Signal. Beide Sensoren werden nicht per
+Interrupt, sondern über einen regelmäßig laufenden micro-ROS-Timer (50 ms) abgefragt.
+
+Zusätzlich wurde der vorhandene Buzzer an einem PWM-fähigen Pin angebunden. Dieser
+kann über das Topic \texttt{/buzzer} mit einer Frequenz angesteuert werden, sodass der Roboter
+akustisch auf erkannte Hindernisse reagiert.
+
+Auf dem Host-PC wurde ein eigener ROS-2-Node implementiert, der die Bumper-Signale
+auswertet und daraufhin Bewegungsbefehle über \texttt{/cmd\_vel} an den Roboter sendet. Somit
+entsteht eine einfache Hindernisvermeidung.
+
+\subsection{Funktionsweise des ESP32-Programms}
+
+Der ESP32 übernimmt drei zentrale Aufgaben:
+
+\begin{enumerate}
+	\item \textbf{Auslesen der Bumper-Sensoren}
+	\begin{itemize}
+		\item Polling im 50 ms-Takt
+		\item Software-Debouncing zur Unterdrückung von Prellen
+		\item Veröffentlichung von \texttt{/bumper/left} und \texttt{/bumper/right} als \texttt{std\_msgs/Bool}
+	\end{itemize}
+	
+	\item \textbf{Ansteuerung der Motoren über \texttt{/cmd\_vel}}
+	\begin{itemize}
+		\item differentialbasierte Umsetzung der Twist-Nachricht
+		\item Begrenzung und Umrechnung der Werte auf das serielle Motorprotokoll
+		\item Debug-Ausgabe über \texttt{/debug}
+	\end{itemize}
+	
+	\item \textbf{Buzzer-Steuerung über \texttt{/buzzer}}
+	\begin{itemize}
+		\item PWM-Signal mit frei wählbarer Frequenz
+		\item automatisches Abschalten nach Ablauf der Dauer
+	\end{itemize}
+\end{enumerate}
+
+Durch die Kombination dieser Funktionen wird der ESP32 zu einem reinen
+micro-ROS-Sensorknoten, während die höhere Logik auf dem PC ausgeführt wird.
+
+\subsection{Funktionsweise des ROS2-Nodes auf dem Host-PC}
+
+Der ROS-2-Node \texttt{bumper\_react} übernimmt die komplette Entscheidungslogik.  
+Sein Verhalten lässt sich wie folgt zusammenfassen:
+
+\begin{itemize}
+	\item Standardzustand: \textbf{geradeaus fahren}
+	\item Wenn der linke Bumper ausgelöst wird:
+	\begin{itemize}
+		\item ein höherer Ton wird über \texttt{/buzzer} gesendet,
+		\item der Roboter fährt kurz rückwärts,
+		\item anschließend dreht er nach rechts,
+		\item danach setzt er die Vorwärtsfahrt fort.
+	\end{itemize}
+	
+	\item Wenn der rechte Bumper ausgelöst wird:
+	\begin{itemize}
+		\item ein tiefer Ton wird ausgelöst,
+		\item kurze Rückwärtsfahrt,
+		\item Drehung nach links,
+		\item anschließend Weiterfahrt.
+	\end{itemize}
+	
+	\item Zu beginn der Rückwärtsfahrt wird der Buzzer zusätzlich mehrfach aktiviert, 
+	um das Manöver akustisch zu signalisieren.
+\end{itemize}
+
+Die Steuerung erfolgt über einen Zustandsautomaten mit den
+Zuständen \texttt{FORWARD}, \texttt{REVERSE}, \texttt{STOP} und \texttt{TURN}.  
+Ein 200 ms-Timer führt die Bewegungslogik aus, wobei mehrfach hintereinander
+Bewegungsbefehle mit einer Schleife gesendet werden, um Übertragungsverluste zu kompensieren.
+
+Beim Beenden des Programms wird automatisch ein Stopp-Befehl gesendet.
+
+\subsection{Beobachtungen und Herausforderungen}
+
+Während der praktischen Versuche zeigte sich Folgendes:
+
+\begin{itemize}
+	\item Die Hinderniserkennung über die Bumper funktionierte zuverlässig.
+	\item Der Debounce-Mechanismus war notwendig, da die Bumper ohne Entprellung
+	gelegentlich mehrfach auslösten.
+	\item Die Bewegungsabläufe (\emph{rückwärts, drehen, vorwärts}) funktionierten im Normalfall korrekt.
+	\item Es kam vereinzelt vor, dass der Roboter von den vorgesehenen Bewegungen
+	abwich. Dies hängt vermutlich mit der Mikro-ROS-Übertragung zusammen:
+	\begin{itemize}
+		\item einzelne \texttt{/cmd\_vel}-Nachrichten gingen verloren,
+		\item Motorbefehle wurden manchmal verzögert verarbeitet.
+	\end{itemize}
+	\item Durch die Mehrfachübermittlung von Bewegungsbefehlen innerhalb der
+	Zustandsmaschine konnten diese Fehler deutlich reduziert werden.
+\end{itemize}
+
+\subsection{Fazit}
+
+Das Projekt zeigt, wie sich einfache Sensordaten (Bumper) nutzen lassen, um ein
+autonomes Verhalten zu erzeugen. Die Trennung zwischen
+ESP32 als micro-ROS-Sensor-/Aktorknoten und PC-seitiger Logik hat sich klar bewährt. Gleichzeitig verdeutlichen die Versuche, dass ohne Rückkanäle oder
+Positionssensorik kleine Übertragungs- oder Timingfehler dazu führen können, dass die
+Trajektorie des Roboters nicht vollständig reproduzierbar ist.
+
+Das vorgestellte System bietet jedoch eine robuste und erweiterbare Grundlage, um
+weitere Sensordaten oder komplexere Reaktionen zu integrieren.
+
+
 \section{Durchführung der Aufgaben vor Ort}
 
 In diesem Abschnitt wir die Durchführung der praktischen Aufgaben beschrieben. Hierfür wurde die bereitgestellte Rechner mit einer Ubuntu 22.04 verwendet. Für die Bearbeitung wurde als Referenz die Anleitung \ref{} Pfirsich verwendet und wird hier folglich nicht mehr erwähnt.
