@@ -361,50 +361,123 @@ Trajektorie des Roboters nicht vollständig reproduzierbar ist.
 Das vorgestellte System bietet jedoch eine robuste und erweiterbare Grundlage, um
 weitere Sensordaten oder komplexere Reaktionen zu integrieren.
 
+\section{Arbeiten mit dem TurtleBot 4}
 
-\section{Durchführung der Aufgaben vor Ort}
-
-In diesem Abschnitt wir die Durchführung der praktischen Aufgaben beschrieben. Hierfür wurde die bereitgestellte Rechner mit einer Ubuntu 22.04 verwendet. Für die Bearbeitung wurde als Referenz die Anleitung \ref{} Pfirsich verwendet und wird hier folglich nicht mehr erwähnt.
+In diesem Abschnitt wird die praktische Arbeit mit dem professionellen mobilen Roboter \textit{TurtleBot 4} dokumentiert.
+Der TurtleBot 4 basiert auf ROS,2 und stellt zahlreiche Sensoren, Aktoren sowie Navigations- und SLAM-Funktionalitäten bereit.
+Ziel der Aufgabe war es, die grundlegenden Funktionsweisen des Roboters kennenzulernen, die SLAM- und Navigationspipeline praktisch zu erproben und anschließend ein eigenes kleines ROS-2-Programm auf den TurtleBot anzupassen. Wir orientieren uns in diesem Abschnitt an dem Benutzerhandbuch zum Turtlebot4 \cite{turtlebot4_user_manual}
 
 \subsection{Aufgabe 1}
 
-Ziel der Aufgabe ist es, eine Verbindung mit dem Turtlebot herzustellen und diesen manuell zu bewegen. Die Verbindung zwischen Rechner und Turtlebot wurde dabei automatisch hergestellt. Um die manuelle Bewegung zu ermöglichen, wurde zuerst der Befehl
+Ziel dieser Aufgabe ist es, eine Verbindung mit dem Turtlebot herzustellen und diesen manuell zu bewegen. Die Verbindung zwischen Rechner und Turtlebot wurde dabei automatisch hergestellt. Um die manuelle Bewegung zu ermöglichen, wurde zuerst der Befehl
 \begin{verbatim}
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
+	ros2 run teleop_twist_keyboard teleop_twist_keyboard
 \end{verbatim}
-ausgeführt. Dadurch öffnet sich im Terminal eine Auflistung an einfachen Eingaben, durch welche der Turtlebot gesteuert werden kann.
+ausgeführt. Dadurch öffnet sich im Terminal eine Auflistung an einfachen Eingaben, durch welche der Turtlebot über das Topic cmd\_vel gesteuert werden kann.
 
 \subsection{Aufgabe 2}
 Als zweiter Teil des Praktikums sollen mit dem Turtlebot visuelle Daten eingelesen und ausgegeben werden. Dafür wird das Programm RViz verwendet. Nach der Ausführung von \begin{verbatim}
-ros2 launch turtlebot4_viz view_robot.launch.py
+	ros2 launch turtlebot4_viz view_robot.launch.py
 \end{verbatim}
-wird das Programm gestartet und es wird ausgehend vom Sichtfeld des Roboters berewits eine Karte aufgezeichnet. 
-
-Zur Auslesung einzelner Werte wurde der Befehl \begin{verbatim}
-ros2 tobic list 
-\end{verbatim}	
-verwendet. Durch das Hinzufügen weiterer Argumente können hier Werte wie der Batteriestand oder der Ladezustand ausgegeben werden.
+wird das Programm gestartet und es wird ausgehend vom Sichtfeld des Roboters bereits eine Karte aufgezeichnet. 
 
 \subsection{Aufgabe 3}
 
-Hier soll eine gesamte Karte Aufgezeichnet und abgespeichert werden. Dafür wird der Roboter nach Aufgabe 2 manuell weiterbewegt, bis er alle Hindernisse erkannt hat. Das kann visuell mit RViz überprüft werden. Dabei kam es beim ersten Versuch dazu, dass eine nicht existierende Wand eingezeichnet wurde. Diese enstand vermutlich durch den Blindspot hinter dem Roboter, während sich dieser noch in der Startposition auf der Ladestation befand.
+Hier soll eine gesamte Karte Aufgezeichnet und abgespeichert werden. Dafür wird der Roboter nach Aufgabe 2 manuell weiterbewegt, bis er alle Hindernisse erkannt hat. Das kann visuell mit RViz überprüft werden, diese Karte ist in Abbildung \ref{fig:map} zu sehen.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/MAP.png}	
+	\caption{Mit Rviz erzeugte Karte}
+	\label{fig:map}
+\end{figure}
 
-Das Abspeichern der Karte erfolgt daraufhin mit \begin{verbatim}
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap 
-"name: data: 'map_name'"
+
+ Dabei kam es beim ersten Versuch dazu, dass eine nicht existierende Wand eingezeichnet wurde. Diese enstand vermutlich durch den Blindspot hinter dem Roboter, während sich dieser noch in der Startposition auf der Ladestation befand.
+
+Das Abspeichern der Karte erfolgt daraufhin mit 
+\begin{verbatim}
+	ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap 
+	"name: data: 'map_name'"
 \end{verbatim}
 
 \subsection{Aufgabe 4}
 
-Um eine autonome Bewegung zu ermöglichen, wurden folgende Befehle durchgeführt:
+Um die autonome Navigation des TurtleBot 4 zu ermöglichen, wurden zunächst die notwendigen ROS 2 Launch-Dateien gestartet:
+
 \begin{verbatim}
-ros2 launch turtlebot4_navigation localization.launch.py map:=office.yaml
-ros2 launch turtlebot4_navigation nav2.launch.py
-ros2 launch turtlebot4_viz view_robot.launch.py
+	ros2 launch turtlebot4_navigation localization.launch.py map:=map_name.yaml
+	ros2 launch turtlebot4_navigation nav2.launch.py
+	ros2 launch turtlebot4_viz view_robot.launch.py
 \end{verbatim}
-Hiermit wird die vorher abgespeicherte Map in RViz geöffnet und eine Bewegung ermöglicht. Dafür wird mit den Funktionen \" 2D Point Estimate \" eine geschätzte Startposition angegeben und durch \" Nav2 Goal \" ein Ziel festgelegt. Des weiteren muss noch der Befehl \begin{verbatim}
-...
-\end{verbatim}
-ausgeführt werden, wodurch die Lokalisierung des Roboters verbessert wird. Nachdem das Ziel nun gesetzt wird, beginnt der Roboter sich in die Richtung des Ziels zu bewegen und dabei Hindernisse zu umfahren. Bei unserem Durchlauf musste er dabei erst in die entgegengestzte Richtung fahren, befor er das Ziel erreichen konnte. Beim Erreichen des Ziels hat er sich noch zwei mal um sich selbst gedreht.
+
+Damit wird die zuvor aufgezeichnete Karte in RViz geladen und gleichzeitig der Nav2-Stack inklusive Lokalisierung aktiviert.  
+Anschließend wurde mit der RViz-Funktion \textit{2D Pose Estimate} die ungefähre Startposition des Roboters angegeben.  
+Über die Funktion \textit{Nav2 Goal} wurde daraufhin ein Zielpunkt in der Karte gesetzt.
+
+Nach dem Setzen des Ziels beginnt der Roboter automatisch mit der Pfadplanung und Navigation in Richtung des angegebenen Punktes. Dabei wich er Hindernissen selbstständig aus. In unserem Versuch musste der Roboter zunächst ein Stück in die entgegengesetzte Richtung fahren, bevor er die optimale Route zum Ziel nahm. Beim Erreichen des Ziels drehte er sich zweimal um die eigene Achse, was typisch für den Nav2-Controller ist, da der Roboter am Endpunkt orientiert wird.
+
+Während der Fahrt kam es mehrfach zu kurzen Stopps. Diese entstehen, wenn der Roboter seine Sensordaten mit der Karte abgleicht und seine Trajektorie aktualisiert.  
+Ein Beispiel der Navigation in RViz mit der geplanten Route ist in Abbildung \ref{fig:map2} dargestellt.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/Driving_map.png}
+	\caption{Navigation auf der Karte in RViz}
+	\label{fig:map2}
+\end{figure}
+
 
 \subsection{Aufgabe 5}
+
+Als letzte Aufgabe sollte eine eigene Anwendung umgesetzt werden.
+Hierzu wurde das zuvor für den selbstgebauten Roboter entwickelte ROS-2-Programm übernommen und an die Struktur des TurtleBot angepasst.
+
+Anstelle der einfachen Bumper-Signale aus der ESP32-Übung wurde für diese Aufgabe das
+TurtleBot4 eigene Topic \texttt{/hazard\_detection} verwendet. Dieses Topic publiziert
+Nachrichten des Typs \texttt{HazardDetectionVector}, welcher eine Liste verschiedener
+Ereignisse enthält (u.a. Bumper, Cliff-Sensoren, Wheel Drop). Für das hier umgesetzte
+Verhalten wurden ausschließlich die Bumper-Ereignisse ausgewertet.
+
+Jedes Element der detections-Liste besitzt ein Typfeld sowie einen zugehörigen
+Frame-Namen (z.B. \texttt{base\_left\_bumper} oder \texttt{base\_right\_bumper}).  
+Die Bumper-Erkennung erfolgt, indem alle enthaltenen Ereignisse iteriert und diejenigen
+ausgewählt werden, deren Typ dem Bumper-Sensor entspricht. Anhand des Frame-Namens wird
+zwischen linkem und rechtem Bumper unterschieden. Dadurch konnte das zuvor
+verwendete einfache ESP32-Signal durch die integrierten TurtleBot-Sensoren ersetzt werden.
+
+
+Auch die Ansteuerung des Buzzers musste gegenüber den vorherigen Aufgaben angepasst
+werden. Der TurtleBot4 akzeptiert keine einfachen numerischen Befehle, sondern erwartet
+eine Nachricht des Typs \texttt{AudioNoteVector}. Dieses Format besteht aus einer Liste
+von \texttt{AudioNote}-Einträgen, wobei jeder Eintrag eine Frequenz sowie eine maximale
+Abspieldauer enthält.
+
+Für die Umsetzung wurde beim Erkennen eines Bumper-Events programmgesteuert ein
+entsprechender Ton erzeugt und als \texttt{AudioNoteVector} publiziert. Dabei wurde ein wie zuvor ein
+unterschiedlicher Ton für linken und rechten Bumper verwendet. Zusätzlich erzeugt der
+Roboter während des automatischen Rückwärtsfahrens mehrere kurze Signaltöne, um das
+Manöver akustisch kenntlich zu machen.
+
+Der angepasste Code ist vollständig im GitHub-Repository dokumentiert.
+Das grundlegende Verhalten:
+
+\begin{itemize}
+	\item Standard: Roboter fährt langsam geradeaus.
+	\item Linker Bumper: kurzer Rückwärtsgang, Drehung nach rechts, hoher Ton.
+	\item Rechter Bumper: kurzer Rückwärtsgang, Drehung nach links, tiefer Ton.
+	\item Beim Rückwärtsfahren zu beginn: periodischer Warnton.
+\end{itemize}
+
+Die Fahrdistanzen und Drehungen wurden verkürzt.
+
+Die Anpassung funktionierte gut.
+Der TurtleBot führte das Ereignis-basierte Verhalten zuverlässig aus:
+
+\begin{itemize}
+	\item Die Hazard-Detection erkannte Kollisionen korrekt.
+	\item Buzzer-Signale wurden wie vorgesehen ausgeführt.
+	\item Rückwärtsfahrt und Drehmanöver liefen stabil.
+	\item Kurze Stopps oder minimale Verzögerungen entstanden durch Nachrichtenschwankungen, hatten jedoch keinen Einfluss auf das Gesamtverhalten.
+\end{itemize}
+
+Insgesamt zeigte sich, dass ein zuvor entwickeltes ROS-2-Programm mit wenigen Änderungen erfolgreich auf einen professionellen Roboter portiert werden kann, sofern Topics und Nachrichtenformate entsprechend angepasst werden.
