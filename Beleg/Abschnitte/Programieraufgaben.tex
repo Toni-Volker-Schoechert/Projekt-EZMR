@@ -12,7 +12,7 @@ Jede dieser Aufgaben umfasst mehrere Teilaufgaben, die schrittweise aufeinander 
 Im Folgenden wird zunächst die Socket-basierte Kommunikation beschrieben, während die IPC-Komponenten 
 im Anschluss im zweiten Teil behandelt werden.
 
-\section{Sockets/Netcode}
+\section{Sockets/Netcode} \label{sockets}
 
 In dieser Programmieraufgabe sollte die grundlegende Funktionsweise der Netzwerkkommunikation praktisch nachvollzogen werden. Dazu wurden in mehreren Teilschritten Programme entwickelt, die über das TCP/IP-Protokoll miteinander kommunizieren. Ziel war es, die Prinzipien der Client-Server-Architektur sowie deren Erweiterung zu gleichberechtigten Peer-to-Peer-Verbindungen zu verstehen und zu implementieren.
 
@@ -257,3 +257,32 @@ Der Test zeigt, dass die Kommunikation zwischen beiden Peers bidirektional und u
 Mit dieser Implementierung wurde eine funktionierende Peer-to-Peer-Struktur geschaffen, 
 die Client- und Serverfunktionen in einer einzigen Anwendung vereint. 
 Jeder Peer kann selbstständig Nachrichten austauschen, verwalten und gleichzeitig mehrere Verbindungen handhaben. 
+
+\section{IPC}
+In dieser Programmieraufgabe soll grundlegend die FUnktionsweise von \textbf{Interprocess Comunication} praktisch nachvollzogen werden. Die in den Teilschritten erstellten Programme sollen dabei nach dem Prinzip der Client-Server-Architektur und der Peer-to-Peer-Verbindung miteinander kommunizieren. Dabei soll die Kommunikation anders als in Sektion \ref{sockets} zwischen Prozessen auf dem selben System stattfinden.
+
+Als IPC-Varianten werden hier sowohl UNIX-Domain-Sockets sowie Shared Memory und Semaphore verwendet. Im Rahmen der Aufgaben wurden mehrere Programme erstellt, welche aufeinanader aufbauen und somit eine vollständige Kommunikationsstruktur ermöglichen.
+
+\begin{itemize}
+	\item \textbf{Teilaufgabe a)}: \begin{itemize}
+	\item Erstellen einer IPC-Infrastruktur zur Entgegennahme von Anfragen.
+	\item Das Programm kann ggf. auf Anfragen antworten und tut dies auch. (Protokoll/PDUs)
+	\end{itemize}
+	
+	\item \textbf{Teilaufgabe b)}:\begin{itemize}
+	\item Eine oder mehrere Anwendungen sind zu erzeugen, welche Kontakt mit a) aufnehmen und Daten senden oder empfangen können. (Tests: ipcs ipcrm)
+	\end{itemize}
+	\item \textbf{Teilaufgabe c)}: \begin{itemize}
+	\item Anwendung a) stellt eine Liste zur Verfügung, welche von b)-Anwendungen abgefragt und manipuliert werden kann.
+	\item Anwendungen können anhand dieser Liste auf Nachrichtenverläufe zugreifen (lesen/schreiben).
+	\end{itemize}
+	
+	\item \textbf{Teilaufgabe d)}: \begin{itemize}
+	\item Es soll keine Unterscheidung mehr zwischen a)- und b)-Anwendungen existieren.
+
+	\end{itemize}
+\end{itemize}
+
+\subsection{Teilaufgabe a - Erstellen des Servers}
+Hier wurde ein einfache IPC-Server erstellt. Dieser wartet auf eingehende Nachrichten von Clients und antwortet darauf mit einer Bestätigung und Zustandsinformation. 
+Der Server erstellt hier als erstes mit socket() einen UNIX Socket, welcher mit bind() im System angelegt wird. In der Funktion handle_client() wird dabei der Umgang mit dem jewiligem Client festgelegt. Diese überprüft zuerst die größe der eingehenden Nachricht, ließt diese ein und sendet danach eine Antwort. Daraufhin wird die Server-Client-Verbindung geschlossen. 

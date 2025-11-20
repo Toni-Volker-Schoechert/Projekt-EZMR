@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2025.11.12)  13 NOV 2025 14:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2025.11.12)  19 NOV 2025 22:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1469,16 +1469,16 @@ LaTeX Font Info:    Trying to load font information for T1+lmss on input line 1
  (/usr/share/texmf/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-(./master.toc)
+(./master.toc [1
+
+
+
+
+])
 \tf@toc=\write6
 \openout6 = `master.toc'.
 
- [1
-
-
-
-
-] (./master.lof
+ [2] (./master.lof
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 9
 .
  (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
@@ -1487,8 +1487,7 @@ File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 \tf@lof=\write7
 \openout7 = `master.lof'.
 
-
-[2
+[3
 
 
 ]
@@ -1586,7 +1585,7 @@ ne 51.
 Package natbib Warning: Citation `linux_recv' on page 3 undefined on input line
  51.
 
-<Bilder/socket_test_server_nc.png, id=106, 2127.95pt x 234.8775pt>
+<Bilder/socket_test_server_nc.png, id=125, 2127.95pt x 234.8775pt>
 File: Bilder/socket_test_server_nc.png Graphic file (type png)
 <use Bilder/socket_test_server_nc.png>
 Package pdftex.def Info: Bilder/socket_test_server_nc.png  used on input line 6
@@ -1623,14 +1622,14 @@ tt/m/n/10.95 connect() \T1/ptm/m/n/10.95 auf-ge-baut, wo-bei der Socket-Deskrip
 tor
  []
 
-<Bilder/socket_client_server_test.png, id=115, 2124.93875pt x 310.15875pt>
+<Bilder/socket_client_server_test.png, id=134, 2124.93875pt x 310.15875pt>
 File: Bilder/socket_client_server_test.png Graphic file (type png)
 <use Bilder/socket_client_server_test.png>
 Package pdftex.def Info: Bilder/socket_client_server_test.png  used on input li
 ne 122.
 (pdftex.def)             Requested size: 441.01773pt x 64.36856pt.
 [4 <./Bilder/socket_client_server_test.png>]
-<Bilder/server_client_test_c.png.png, id=125, 2104.86375pt x 1156.32pt>
+<Bilder/server_client_test_c.png.png, id=143, 2104.86375pt x 1156.32pt>
 File: Bilder/server_client_test_c.png.png Graphic file (type png)
 <use Bilder/server_client_test_c.png.png>
 Package pdftex.def Info: Bilder/server_client_test_c.png.png  used on input lin
@@ -1665,12 +1664,22 @@ n. (\T1/ptm/b/n/10.95 ?\T1/ptm/m/n/10.95 , man 3 pthread_create), (\T1/ptm/b/n/
 10.95 ?\T1/ptm/m/n/10.95 , man 3 pthread_mutex_init) 
  []
 
-<Bilder/peer_test_1.png, id=137, 2038.61626pt x 883.3pt>
+<Bilder/peer_test_1.png, id=155, 2038.61626pt x 883.3pt>
 File: Bilder/peer_test_1.png Graphic file (type png)
 <use Bilder/peer_test_1.png>
 Package pdftex.def Info: Bilder/peer_test_1.png  used on input line 243.
 (pdftex.def)             Requested size: 441.01773pt x 191.07838pt.
-[7 <./Bilder/peer_test_1.png>]) [8]
+[7 <./Bilder/peer_test_1.png>]
+
+LaTeX Warning: Reference `sockets' on page 8 undefined on input line 262.
+
+
+Overfull \hbox (5.9574pt too wide) in paragraph at lines 278--279
+[]\T1/ptm/m/n/10.95 Anwendungen kön-nen an-hand die-ser Lis-te auf Nach-rich-te
+n-ver-läu-fe zu-grei-fen (le-sen/schrei-
+ []
+
+) [8]
 \openout2 = `Abschnitte/Praktikum.aux'.
 
  (./Abschnitte/Praktikum.tex
@@ -1721,7 +1730,7 @@ t line 96.
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 ) [11]
-<Bilder/turtlesim_square_1.png, id=174, 176.66pt x 165.61874pt>
+<Bilder/turtlesim_square_1.png, id=193, 176.66pt x 165.61874pt>
 File: Bilder/turtlesim_square_1.png Graphic file (type png)
 <use Bilder/turtlesim_square_1.png>
 Package pdftex.def Info: Bilder/turtlesim_square_1.png  used on input line 155.
@@ -1741,10 +1750,48 @@ ub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.0}}"}[]
  []
 
 [15]
+Overfull \hbox (14.81511pt too wide) in paragraph at lines 249--252
+\T1/ptm/m/n/10.95 Bum-per die-nen als ein-fa-che kol-li-si-ons-ba-sier-te Hin-d
+er-ni-ser-ken-nung und lö-sen ab-hän-gig von der Fahrtrich-
+ []
 
-LaTeX Warning: Reference `' on page 16 undefined on input line 246.
+[16]
+LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 283.
 
-[16]) [17]
+Overfull \hbox (0.43819pt too wide) in paragraph at lines 297--299
+[]\T1/ptm/m/n/10.95 Durch die Kom-bi-na-ti-on die-ser Funk-tio-nen wird der ESP
+32 zu ei-nem rei-nen micro-ROS-Sensorknoten,
+ []
+
+[17]
+
+Package natbib Warning: Citation `turtlebot4_user_manual' on page 18 undefined 
+on input line 368.
+
+[18]
+<Bilder/MAP.png, id=254, 2499.3375pt x 1418.29875pt>
+File: Bilder/MAP.png Graphic file (type png)
+<use Bilder/MAP.png>
+Package pdftex.def Info: Bilder/MAP.png  used on input line 389.
+(pdftex.def)             Requested size: 441.01773pt x 250.26193pt.
+ [19]
+<Bilder/Driving_map.png, id=261, 883.3pt x 689.57625pt>
+File: Bilder/Driving_map.png Graphic file (type png)
+<use Bilder/Driving_map.png>
+Package pdftex.def Info: Bilder/Driving_map.png  used on input line 424.
+(pdftex.def)             Requested size: 441.01773pt x 344.29272pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[20 <./Bilder/MAP.png>]
+Overfull \hbox (12.8591pt too wide) in paragraph at lines 435--440
+\T1/ptm/m/n/10.95 Sensoren, Wheel Drop). Für das hier um-ge-setz-te Ver-hal-ten
+ wur-den aus-schlieÿ-lich die Bumper-Ereignisse
+ []
+
+[21 <./Bilder/Driving_map.png>]) [22]
 \openout2 = `Abschnitte/Anhang1.aux'.
 
  (./Abschnitte/Anhang1.tex)
@@ -1758,27 +1805,31 @@ Package natbib Warning: There were undefined citations.
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
 Package rerunfilecheck Info: File `master.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 38418 strings out of 480080
- 795638 string characters out of 5891144
- 1476857 words of memory out of 5000000
- 55561 multiletter control sequences out of 15000+600000
- 530521 words of font info for 86 fonts, out of 8000000 for 9000
+ 38458 strings out of 480080
+ 796197 string characters out of 5891144
+ 1476975 words of memory out of 5000000
+ 55581 multiletter control sequences out of 15000+600000
+ 530839 words of font info for 87 fonts, out of 8000000 for 9000
  81 hyphenation exceptions out of 8191
  108i,11n,106p,10620b,2578s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texmf/
-fonts/enc/dvips/lm/lm-ec.enc}</usr/share/texmf/fonts/type1/public/lm/lmssbx10.p
-fb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texlive/texmf
--dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/typ
-e1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/ut
-mr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on master.pdf (20 pages, 614992 bytes).
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texlive/texmf-dist
+/fonts/enc/dvips/base/8r.enc}</usr/share/texmf/fonts/type1/public/lm/lmssbx10.p
+fb></usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/t
+ype1/public/lm/lmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/
+utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on master.pdf (26 pages, 945258 bytes).
 PDF statistics:
- 368 PDF objects out of 1000 (max. 8388607)
- 318 compressed objects within 4 object streams
- 88 named destinations out of 1000 (max. 500000)
- 288 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 443 PDF objects out of 1000 (max. 8388607)
+ 381 compressed objects within 4 object streams
+ 105 named destinations out of 1000 (max. 500000)
+ 346 words of extra memory for PDF output out of 10000 (max. 10000000)
 
