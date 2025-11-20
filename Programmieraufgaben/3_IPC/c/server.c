@@ -1,4 +1,4 @@
-// server.c — erweitert für Aufgabe C
+// server.c 
 #define _GNU_SOURCE
 #include <sys/types.h>
 #include <sys/socket.h>

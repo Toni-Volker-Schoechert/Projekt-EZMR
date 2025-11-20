@@ -1,4 +1,4 @@
-// client_interactive.c — Erweiterung für Aufgabe C
+// client.c 
 #define _GNU_SOURCE
 #include <sys/types.h>
 #include <sys/socket.h>

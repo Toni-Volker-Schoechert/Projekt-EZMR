@@ -283,6 +283,30 @@ Als IPC-Varianten werden hier sowohl UNIX-Domain-Sockets sowie Shared Memory und
 	\end{itemize}
 \end{itemize}
 
-\subsection{Teilaufgabe a - Erstellen des Servers}
-Hier wurde ein einfache IPC-Server erstellt. Dieser wartet auf eingehende Nachrichten von Clients und antwortet darauf mit einer Bestätigung und Zustandsinformation. 
-Der Server erstellt hier als erstes mit socket() einen UNIX Socket, welcher mit bind() im System angelegt wird. In der Funktion handle_client() wird dabei der Umgang mit dem jewiligem Client festgelegt. Diese überprüft zuerst die größe der eingehenden Nachricht, ließt diese ein und sendet danach eine Antwort. Daraufhin wird die Server-Client-Verbindung geschlossen. 
+\subsection{Teilaufgabe a) - Erstellen des Servers}
+\label{server_3}
+Hier wurde ein einfacher IPC-Server erstellt. Dieser wartet auf eingehende Nachrichten von Clients und antwortet darauf mit einer Bestätigung und Zustandsinformation. \newline
+
+Der Server erstellt hier als erstes mit \texttt{socket()} einen UNIX-DOMAIN-Socket, welcher mit \texttt{bind()} an einen Pfad im Dateisystem gebunden wird. in diesem Beispiel wird der Pfad \verb|/tmp/ipc_example.sock|  verwendet. Danach geht der Server in den \texttt{"Listen-Zustand"} und kann somit eingehende Verbindungen akzeptieren.\newline
+
+Ein Client, welcher sich verbinden möchte, erstellt ebenfalls einen Socket mit gleiche Addresse um mittels connect() den Server zu erreichen. Sobald eine Verbindung aufgebaut wurde, erzeugt der Kernel für diese Verbindung einen neuen Socket, den der Server über accept() erhält. Der Server erstellt dann über fork() einen Child-Process, welche sspezifisch für diese Client-Verbindung zuständig ist. Somit bleibt der Listening-Socket frei und der Server kann mehrere Clients bedienen.\newline
+
+In der Funktion \texttt{handle\_\text{client()}} wird dabei der Umgang mit dem jewiligem Client festgelegt. Diese ließt zuerst ein 4-Byte-Längenfeld, danach die gesendete Nachricht und erzeugt eine Antwort. Diese wird ebenfalls mit einem Längenfeld versehen, sodass die Nachrichtenformate konstant bleiben. Nach Abschluss der Kommunikation wird der Child-Process beendet und die Verbindung wird geschlossen. \newline
+
+Der Server erkennt Empfangs-, Sende- und Allokationsfehler und beendet damit die Verarbeitungsschleife des Clients. Somit können durch Client-seitiges fehlerhaftes Verhalten entstandene Probleme verhindert werden. Der für jeden Client angelegte dynamische Speicher wird mit free() freigegeben und verbindungsspezifische Sockets werden  geschlossen. Durch unlink() wird die UNIX-Socket-Datei beim beenden des Servers gelöscht, sodass beim Neustart keine veralteten Socket-Dateien konflikte verursachen. 
+
+\subsection{Teilaufgabe b) - Implementierung des Clients}
+In dieser Teilaufgabe wurde eine Client-Anwendung entwickelt, welche sich mit dem in Teilaufgabe a) entwickelten Server verbindet und Daten mit diesem austauschen soll. Hierbei soll neben dem neu erstellten Client auch gleichzeitig die bereits vorhandene Server-Anwendung getestet werden. \newline
+
+Der Client erstell zunächst mit dem Aufruf \texttt{socket()} einen UNIX-Domain-Socket, welcher wieder im Dateisystem unter \verb|/tmp/ipc_example.sock| abgespeichert wird. Mit dem Aufruf \texttt{connect()} wird danach die Verbindung mit dem entsprechendem Server hergestellt. Die Aubläufe dazu werden in Sektion \ref{server_3} beschrieben. \newline
+
+Um eine leichtere Bedienung zu ermöglichen, wird im Client ein Schleife für eine interaktive Eingabe verwendet. Somit können mehrere Nachrichten versendet werden, ohne den Client neu starten zu müssen. Die Nachricht wird zuerst auf die korrekte Länge geprüft und anschließend in  Pfirsich Network Byte Order umgewandelt, wonach sie versandt wird. Daraufhin wird die Antwort des Servers empfangen und ausgegeben. Der Client kann jederzeit vom Nutzer beendet werden, worraufhin die Socketverbindung geschlossen wird. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/3_c_alles.png}
+	\caption[Server und Client Test 3b)]{Interaktion zwischen Server und Client bei Verwendung von IPC über UNIX-Domain-Sockets}
+	\label{fig:socket_client_server_test_IPC}
+\end{figure}
+
+In Abbildung \ref{fig:socket_client_server_test_IPC} wird der Testlauf der Kommunikation von Server und Client dargestellt. Hier ist zu erkennen, dass eine eingehende Verbindung mit einem Client nicht beim Server angezeigt wird. Dagegen erhält der Client bei einer Nachricht eine Antwort bestehend aus dem Zustand des Servers sowie eine Wiederholung der Nachricht.
