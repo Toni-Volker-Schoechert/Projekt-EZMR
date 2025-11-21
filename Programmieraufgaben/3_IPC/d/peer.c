@@ -1,4 +1,4 @@
-// ipc_peer.c — Lösung für Aufgabe d
+// peer.c 
 #define _GNU_SOURCE
 #include <sys/types.h>
 #include <sys/socket.h>

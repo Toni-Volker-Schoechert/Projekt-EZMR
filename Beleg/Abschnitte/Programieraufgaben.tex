@@ -261,7 +261,7 @@ Jeder Peer kann selbstständig Nachrichten austauschen, verwalten und gleichzeit
 \section{IPC}
 In dieser Programmieraufgabe soll grundlegend die FUnktionsweise von \textbf{Interprocess Comunication} praktisch nachvollzogen werden. Die in den Teilschritten erstellten Programme sollen dabei nach dem Prinzip der Client-Server-Architektur und der Peer-to-Peer-Verbindung miteinander kommunizieren. Dabei soll die Kommunikation anders als in Sektion \ref{sockets} zwischen Prozessen auf dem selben System stattfinden.
 
-Als IPC-Varianten werden hier sowohl UNIX-Domain-Sockets sowie Shared Memory und Semaphore verwendet. Im Rahmen der Aufgaben wurden mehrere Programme erstellt, welche aufeinanader aufbauen und somit eine vollständige Kommunikationsstruktur ermöglichen.
+Als IPC-Varianten werden hier sowohl UNIX-Domain-Sockets sowie Shared Memory und Semaphore verwendet. Im Rahmen der Aufgaben wurden mehrere Programme erstellt, welche aufeinanander aufbauen und somit eine vollständige Kommunikationsstruktur ermöglichen.
 
 \begin{itemize}
 	\item \textbf{Teilaufgabe a)}: \begin{itemize}
@@ -283,30 +283,74 @@ Als IPC-Varianten werden hier sowohl UNIX-Domain-Sockets sowie Shared Memory und
 	\end{itemize}
 \end{itemize}
 
-\subsection{Teilaufgabe a) - Erstellen des Servers}
+\subsection{Teilaufgabe a) - Implementierung des Servers}
 \label{server_3}
 Hier wurde ein einfacher IPC-Server erstellt. Dieser wartet auf eingehende Nachrichten von Clients und antwortet darauf mit einer Bestätigung und Zustandsinformation. \newline
 
 Der Server erstellt hier als erstes mit \texttt{socket()} einen UNIX-DOMAIN-Socket, welcher mit \texttt{bind()} an einen Pfad im Dateisystem gebunden wird. in diesem Beispiel wird der Pfad \verb|/tmp/ipc_example.sock|  verwendet. Danach geht der Server in den \texttt{"Listen-Zustand"} und kann somit eingehende Verbindungen akzeptieren.\newline
 
-Ein Client, welcher sich verbinden möchte, erstellt ebenfalls einen Socket mit gleiche Addresse um mittels connect() den Server zu erreichen. Sobald eine Verbindung aufgebaut wurde, erzeugt der Kernel für diese Verbindung einen neuen Socket, den der Server über accept() erhält. Der Server erstellt dann über fork() einen Child-Process, welche sspezifisch für diese Client-Verbindung zuständig ist. Somit bleibt der Listening-Socket frei und der Server kann mehrere Clients bedienen.\newline
+Ein Client, welcher sich verbinden möchte, erstellt ebenfalls einen Socket mit gleicher Addresse um mittels connect() den Server zu erreichen. Sobald eine Verbindung aufgebaut wurde, erzeugt der Kernel für diese Verbindung einen neuen Socket, den der Server über accept() erhält. Der Server erstellt dann über fork() einen Child-Process, der spezifisch für diese Client-Verbindung zuständig ist. Somit bleibt der Listening-Socket frei und der Server kann mehrere Clients bedienen.\newline
 
-In der Funktion \texttt{handle\_\text{client()}} wird dabei der Umgang mit dem jewiligem Client festgelegt. Diese ließt zuerst ein 4-Byte-Längenfeld, danach die gesendete Nachricht und erzeugt eine Antwort. Diese wird ebenfalls mit einem Längenfeld versehen, sodass die Nachrichtenformate konstant bleiben. Nach Abschluss der Kommunikation wird der Child-Process beendet und die Verbindung wird geschlossen. \newline
+In der Funktion \texttt{handle\_\text{client()}} wird dabei der Umgang mit dem jeweiligen Client festgelegt. Diese liest zuerst ein 4-Byte-Längenfeld, danach die gesendete Nachricht und erzeugt eine Antwort. Diese wird ebenfalls mit einem Längenfeld versehen, sodass die Nachrichtenformate konstant bleiben. Nach Abschluss der Kommunikation wird der Child-Process beendet und die Verbindung wird geschlossen. \newline
 
-Der Server erkennt Empfangs-, Sende- und Allokationsfehler und beendet damit die Verarbeitungsschleife des Clients. Somit können durch Client-seitiges fehlerhaftes Verhalten entstandene Probleme verhindert werden. Der für jeden Client angelegte dynamische Speicher wird mit free() freigegeben und verbindungsspezifische Sockets werden  geschlossen. Durch unlink() wird die UNIX-Socket-Datei beim beenden des Servers gelöscht, sodass beim Neustart keine veralteten Socket-Dateien konflikte verursachen. 
+Der Server erkennt Empfangs-, Sende- und Allokationsfehler und beendet damit die Verarbeitungsschleife des Clients. Somit können durch Client-seitiges fehlerhaftes Verhalten entstandene Probleme verhindert werden. Der für jeden Client angelegte dynamische Speicher wird mit free() freigegeben und verbindungsspezifische Sockets werden  geschlossen. Durch unlink() wird die UNIX-Socket-Datei beim Beenden des Servers gelöscht, sodass beim Neustart keine veralteten Socket-Dateien Konflikte verursachen. 
 
 \subsection{Teilaufgabe b) - Implementierung des Clients}
-In dieser Teilaufgabe wurde eine Client-Anwendung entwickelt, welche sich mit dem in Teilaufgabe a) entwickelten Server verbindet und Daten mit diesem austauschen soll. Hierbei soll neben dem neu erstellten Client auch gleichzeitig die bereits vorhandene Server-Anwendung getestet werden. \newline
+\label{client_3}
+In dieser Teilaufgabe wurde eine Client-Anwendung entwickelt, welche sich mit dem in Teilaufgabe a) entwickelten Server verbindet und Daten mit diesem austauscht. Ziel ist es, die Funktionalität sowohl des neuen Clients als auch der bereits vorhandenen Server-Anwendung zu testen. \newline
 
-Der Client erstell zunächst mit dem Aufruf \texttt{socket()} einen UNIX-Domain-Socket, welcher wieder im Dateisystem unter \verb|/tmp/ipc_example.sock| abgespeichert wird. Mit dem Aufruf \texttt{connect()} wird danach die Verbindung mit dem entsprechendem Server hergestellt. Die Aubläufe dazu werden in Sektion \ref{server_3} beschrieben. \newline
+Der Client erstellt zunächst mit dem Aufruf \texttt{socket()} einen UNIX-Domain-Socket. Die Kommunikation erfolgt über den Pfad \verb|/tmp/ipc_example.sock| , unter dem der Server erreichbar ist. Anschließend wird über \texttt{connect()} eine Verbindung zum Server hergestellt. Die Abläufe des Servers werden in Sektion \ref{server_3} beschrieben. \newline
 
-Um eine leichtere Bedienung zu ermöglichen, wird im Client ein Schleife für eine interaktive Eingabe verwendet. Somit können mehrere Nachrichten versendet werden, ohne den Client neu starten zu müssen. Die Nachricht wird zuerst auf die korrekte Länge geprüft und anschließend in  Pfirsich Network Byte Order umgewandelt, wonach sie versandt wird. Daraufhin wird die Antwort des Servers empfangen und ausgegeben. Der Client kann jederzeit vom Nutzer beendet werden, worraufhin die Socketverbindung geschlossen wird. 
+Für eine benutzerfreundliche Bedienung verwendet der Client eine interaktive Eingabe-Schleife. Der Nutzer kann mehrere Nachrichten hintereinander senden, ohne den Client neu starten zu müssen. ede eingegebene Nachricht wird auf ihre Länge überprüft, die Länge in Network Byte Order (\texttt{uint32\_\texttt{t}}) umgewandelt und zusammen mit dem Payload an den Server gesendet. Der Server antwortet im gleichen Format: zuerst eine 4-Byte-Länge, dann die Payload. Die Antwort wird empfangen und dem Nutzer ausgegeben. \newline
+Der Client behandelt auch das Beenden der Verbindung: Wird eine leere Eingabe oder der Befehl \texttt{"quit"} eingegeben, sendet der Client eine Null-Länge-PDU an den Server, was als Signal zum Schließen der Verbindung interpretiert wird. Danach wird der Socket ordnungsgemäß geschlossen, und der Client beendet sich.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{Bilder/3_c_alles.png}
-	\caption[Server und Client Test 3b)]{Interaktion zwischen Server und Client bei Verwendung von IPC über UNIX-Domain-Sockets}
+	\caption[Server und Client Test 3b)]{Interaktion zwischen Server und Client bei Verwendung von IPC über UNIX-Domain-Sockets - Aufgabe 3 b)}
 	\label{fig:socket_client_server_test_IPC}
 \end{figure}
 
 In Abbildung \ref{fig:socket_client_server_test_IPC} wird der Testlauf der Kommunikation von Server und Client dargestellt. Hier ist zu erkennen, dass eine eingehende Verbindung mit einem Client nicht beim Server angezeigt wird. Dagegen erhält der Client bei einer Nachricht eine Antwort bestehend aus dem Zustand des Servers sowie eine Wiederholung der Nachricht.
+
+\subsection{Teilaufgabe c) - Nachrichtenverwaltung im Server} \label{sec:3_c}
+In dieser Teilaufgabe werden der Server aus Teilaufgabe a) und der Client aus Teilaufgabe b) erweitert. Zusätzlich zur bereits genutzten Kommunikation über UNIX-Domain-Sockets kommen nun Shared Memory und Semaphoren zum Einsatz. Damit kann der Server einen globalen, von allen Kindprozessen gemeinsam nutzbaren Speicherbereich verwalten.
+Der Server stellt hierfür eine Liste von Textnachrichten bereit, die von allen Clients abgerufen und manipuliert werden kann. Zur Interaktion unterstützt der Server folgende Befehle:
+\begin{itemize}
+\item \texttt{LIST} – gibt alle aktuell gespeicherten Einträge aus
+\item \texttt{ADD:<text>} – fügt der Liste einen neuen Eintrag hinzu
+\item \texttt{CLEAR} – löscht alle Einträge
+\item \texttt{quit} – beendet den Client und schließt die Verbindung
+\end{itemize}
+
+Damit entsteht eine einfache textbasierte Steuerung, bei der jeder Befehl eine konkrete serverseitige Operation auslöst. Auf Client-Seite wurde hierzu die Funktion \texttt{send\_\text{cmd()}} ergänzt, welche Befehle im geforderten PDU-Format versendet, die Antwort des Servers empfängt und anschließend ausgibt. Der Befehl \texttt{quit} beendet ausschließlich den Client; er wird nicht an den Server weitergeleitet. \newline \newline
+Im Vergleich zu Abschnitt \ref{server_3} wurde der Server deutlich erweitert. Es wird nun ein Shared-Memory-Segment initialisiert, das eine gemeinsame Datenstruktur zur Nachrichtenverwaltung enthält. Mithilfe eines binären Semaphors wird der Zugriff aller parallelen Server-Kindprozesse synchronisiert, um Race Conditions zu vermeiden. Die Funktion \texttt{process\_\text{command()}} übernimmt die Auswertung der empfangenen Befehle und führt die zugehörigen Operationen auf der globalen Nachrichtenliste aus.
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/Aufgabe_c.png}
+	\caption[Client Test 3c)]{Textbasierte Steuerung über den Client- Aufgabe 3 c)}
+	\label{fig:text_steuerung_IPC}
+\end{figure}
+
+Die Abbildung \ref{fig:text_steuerung_IPC} zeigt eine beispielhafte Kommunikation zwischen Client und Server. Hier werden durch ADD neue Einträge zur Liste hinzugefüht und wieder entfernt. Da sich die Ausgabe vom Server nicht zur Abbildung \ref{fig:socket_client_server_test_IPC} änder, wird dieser hier nicht noch einmal gezeigt. 
+
+\subsection{Teilaufgabe d) - Vereinheitlichung von CLient und Server}
+\label{aufgabe_d_IPC}
+
+In dieser Teilaufgabe wurde die anfängliche Trennung zwischen Client- und Serveranwendung aufgehoben. Anstelle zweier separater Programme wurde hier eine kombinierte Anwendung erstellt, die innerhalb eines einzelnen Prozesses sowohl die Server- als auch die Clientfunktion übernimmt. \newline 
+
+Das Programm \texttt{peer.c} baut dabei auf der Funktionalität von Sektion \ref{sec:3_c} auf und kombiniert dabei die Inhalte von \texttt{server.c} und \texttt{client.c}. Die größte funktionale Änderung  liegt hierbei, dass beim Start des Programms kein \verb|shm->count = 0;| ausgeführt wird. Dadurch bleiben Einträge aus vorherigen Programmläufen im Shared Memory bestehen, während \texttt{server.c} bei jedem Start mit einer leeren Liste begonnen hat. \newline 
+Die übrigen Funktionen entsprechen den vorherigen Aufgaben: Serverseitig werden erneut Shared Memory und Semaphoren verwendet und die Funktion  \texttt{process\_\text{command()}} übernimmt die Auswertung eingehender Kommandos. Der Server läuft in einem eigenen Thread \texttt{server\_ \text{thread}} , der einen Unix-Domain-Socket erzeugt und im lokalen Dateisystem bereitstellt.\newline 
+\texttt{"Clientseitig"} wird wieder die Funktion \texttt{send\_\text{cmd()}} verwendet, um Befehle an den lokalen Server zu schicken. Dabei wird für jedes Kommando eine eigene Verbindung zum Socket aufgebaut. 
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{Bilder/Aufgabe_d_IPC.png}
+	\caption[peer.c Test IPC]{Testversuch mit peer.c - Aufgabe 3 d)}
+	\label{fig:text_peer_IPC}
+\end{figure}
+
+In Abbildung \ref{fig:text_peer_IPC} wird eine beispielhafte Kommunikation zwischen zwei Ausführungen des Programms \texttt{peer.c}. Hierbei ist zu sehen, dass beide Ausführungen auf die Liste zugreifen und diese bearbeiten können und dabei unabhängig voneinander weiter laufen können.
